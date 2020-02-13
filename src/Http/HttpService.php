@@ -4,11 +4,15 @@ declare(strict_types=1);
 
 namespace BEAR\Dev\Http;
 
+use GuzzleHttp\Client;
 use function sprintf;
 use Symfony\Component\Process\Process;
 
 final class HttpService
 {
+    /**
+     * @var string
+     */
     private $baseHost = '127.0.0.1:8088';
 
     /**
