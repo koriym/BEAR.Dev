@@ -9,7 +9,8 @@
         }
     ],
     "require": {
-        "php": ">=7.2.0"
+        "php": ">=7.2.0",
+        "guzzlehttp/guzzle": "^6.5"
     },
     "require-dev": {
         "bear/package": "^1.9",
@@ -32,18 +33,18 @@
         "test": ["vendor/bin/phpunit"],
         "tests": [
             "@cs",
-            "./vendor/bin/phpstan analyse -c phpstan.neon",
-            "./vendor/bin/psalm",
+            "phpstan analyse -c phpstan.neon",
+            "psalm",
             "@test"
         ],
         "coverage": ["php -dzend_extension=xdebug.so ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage"],
         "cs": [
-            "./vendor/bin/php-cs-fixer fix -v --dry-run",
-            "./vendor/bin/phpcs --standard=phpcs.xml src;"
+            "php-cs-fixer fix -v --dry-run",
+            "phpcs --standard=phpcs.xml src;"
         ],
         "cs-fix": [
-            "./vendor/bin/php-cs-fixer fix -v",
-            "./vendor/bin/phpcbf src tests"
+            "php-cs-fixer fix -v",
+            "phpcbf src tests"
         ]
     }
 }
