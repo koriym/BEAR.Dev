@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BEAR\Dev;
+namespace BEAR\Dev\Db;
 
 use Aura\Sql\ExtendedPdo;
 use Aura\Sql\ExtendedPdoInterface;

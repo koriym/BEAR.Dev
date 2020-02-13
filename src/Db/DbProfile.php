@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace BEAR\Dev;
+namespace BEAR\Dev\Db;
 
 use Aura\Sql\ExtendedPdoInterface;
 use Aura\Sql\Profiler;
