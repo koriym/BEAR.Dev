@@ -11,7 +11,7 @@ use function sprintf;
 use function strpos;
 use Symfony\Component\Process\Process;
 
-final class HttpService
+final class BuiltinServer
 {
     /**
      * @var string
