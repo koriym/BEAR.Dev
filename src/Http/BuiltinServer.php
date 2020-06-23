@@ -23,7 +23,7 @@ final class BuiltinServer
      */
     private $process;
 
-    public function start() : void
+    public function __construct()
     {
         $process = new Process([
             PHP_BINARY,
@@ -33,8 +33,10 @@ final class BuiltinServer
             sprintf('%s/public', dirname(__DIR__, 5))
         ]);
         $process->start();
-        $process->waitUntil(function ($type, $output) {
-            unset($type);
+        $process->waitUntil(function (string $type, string $output) : bool {
+            if ($type === 'err') {
+                throw new RuntimeException;
+            }
 
             return (bool) strpos($output, self::HOST);
         });

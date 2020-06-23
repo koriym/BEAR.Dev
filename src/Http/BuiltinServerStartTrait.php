@@ -21,7 +21,6 @@ trait BuiltinServerStartTrait
     public static function setUpBeforeClass() : void
     {
         self::$server = new BuiltinServer;
-        self::$server->start();
         self::$client = self::$server->getClient();
     }
 
