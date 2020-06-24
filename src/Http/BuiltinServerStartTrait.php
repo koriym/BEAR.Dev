@@ -4,28 +4,46 @@ declare(strict_types=1);
 
 namespace BEAR\Dev\Http;
 
-use GuzzleHttp\Client;
+use BEAR\Resource\ResourceInterface;
+use function dirname;
+use Ray\Di\InjectorInterface;
+use ReflectionClass;
+use function register_shutdown_function;
 
 trait BuiltinServerStartTrait
 {
+    /**
+     * @var string
+     */
+    private static $host = '127.0.0.1:8088';
+
+    /**
+     * @var string
+     */
+    private $httpHost = 'http://127.0.0.1:8088';
+
     /**
      * @var BuiltinServer
      */
     private static $server;
 
-    /**
-     * @var Client
-     */
-    private static $client;
-
     public static function setUpBeforeClass() : void
     {
-        self::$server = new BuiltinServer;
-        self::$client = self::$server->getClient();
+        $dir = dirname((new ReflectionClass(static::class))->getFileName());
+        self::$server = new BuiltinServer(self::$host, $dir . '/index.php');
+        self::$server->start();
+        register_shutdown_function(function () {
+            self::$server->stop();
+        });
     }
 
     public static function tearDownAfterClass() : void
     {
         self::$server->stop();
+    }
+
+    public function getHttpResourceClient(InjectorInterface $injector, string $class) : ResourceInterface
+    {
+        return new HttpResourceClient($this->httpHost, $injector, $class);
     }
 }

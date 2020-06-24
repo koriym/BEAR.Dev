@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace BEAR\Dev\Http;
 
-use function dirname;
-use GuzzleHttp\Client;
+use function error_log;
+use function register_shutdown_function;
 use RuntimeException;
 use function sprintf;
 use function strpos;
@@ -14,45 +14,46 @@ use Symfony\Component\Process\Process;
 final class BuiltinServer
 {
     /**
-     * @var string
-     */
-    private const HOST = '127.0.0.1:8088';
-
-    /**
      * @var Process
      */
     private $process;
 
-    public function __construct()
+    /**
+     * @var string
+     */
+    private $host;
+
+    public function __construct(string $host, string $index)
     {
-        $process = new Process([
+        $this->process = new Process([
             PHP_BINARY,
             '-S',
-            self::HOST,
-            '-t',
-            sprintf('%s/public', dirname(__DIR__, 5))
+            $host,
+            $index
         ]);
-        $process->start();
-        $process->waitUntil(function (string $type, string $output) : bool {
-            if ($type === 'err') {
-                throw new RuntimeException;
+        $this->host = $host;
+        register_shutdown_function(function () {
+            $this->process->stop();
+        });
+    }
+
+    public function start() : void
+    {
+        $this->process->start();
+        $this->process->waitUntil(function (string $type, string $output) : bool {
+            if ($type === 'err' && ! is_int(strpos($output, 'started'))) {
+                error_log($output);
             }
 
-            return (bool) strpos($output, self::HOST);
+            return (bool) strpos($output, $this->host);
         });
-        $this->process = $process;
     }
 
     public function stop() : void
     {
         $exitCode = $this->process->stop();
         if ($exitCode !== 143) {
-            throw new RuntimeException((string) $exitCode);
+            throw new RuntimeException(sprintf('code:%s msg:%s', (string) $exitCode, $this->process->getErrorOutput()));
         }
-    }
-
-    public function getClient() : Client
-    {
-        return new Client(['base_uri' => sprintf('http://%s', self::HOST)]);
     }
 }
