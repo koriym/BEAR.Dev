@@ -10,7 +10,7 @@ use BEAR\Resource\ResourceObject;
 use function class_exists;
 use function file_put_contents;
 use function implode;
-use function is_array;
+use InvalidArgumentException;
 use function json_encode;
 use LogicException;
 use const PHP_EOL;
@@ -31,19 +31,25 @@ class HttpResourceClient implements ResourceInterface
     /**
      * @var string
      */
-    private $fileName;
+    private $logFile;
+
+    /**
+     * @var string
+     */
+    private $baseUri;
 
     /**
      * @psalm-param class-string $className
      */
-    public function __construct(InjectorInterface $injector, string $className)
+    public function __construct(string $baseUri, InjectorInterface $injector, string $className)
     {
-        assert(class_exists($className));
-        $class = substr($className, (int) strrpos($className, '\\') + 1);
-        $dir = dirname((string) (new ReflectionClass($className))->getFileName());
-        $this->fileName = sprintf('%s/log/%s.log', $dir, $class);
-        file_put_contents($this->fileName, '');
+        if (! filter_var($baseUri, FILTER_VALIDATE_URL)) {
+            throw new InvalidArgumentException($baseUri);
+        }
+        $this->logFile = $this->getLogFile($className);
+        file_put_contents($this->logFile, '');
         $this->resource = $injector->getInstance(ResourceInterface::class);
+        $this->baseUri = $baseUri;
     }
 
     public function newInstance($uri) : ResourceObject
@@ -113,16 +119,25 @@ class HttpResourceClient implements ResourceInterface
         throw new LogicException;
     }
 
+    public function getLogFile(string $className) : string
+    {
+        $class = substr($className, (int) strrpos($className, '\\') + 1);
+        assert(class_exists($className));
+        $dir = dirname((string) (new ReflectionClass($className))->getFileName());
+
+        return sprintf('%s/log/%s.log', $dir, $class);
+    }
+
     private function safeLog(string $uri, array $query) : void
     {
         $path = parse_url($uri, PHP_URL_PATH);
         $query = $query + (array) parse_url($uri, PHP_URL_QUERY);
         $queryParameter = $query ? '?' . http_build_query($query) : '';
-        $curl = sprintf("curl -s -i 'http://127.0.0.1:8088%s%s'", $path, $queryParameter);
+        $curl = sprintf("curl -s -i '%s%s%s'", $this->baseUri, $path, $queryParameter);
         exec($curl, $output);
         $responseLog = implode(PHP_EOL, $output);
         $log = sprintf("%s\n\n%s", $curl, $responseLog) . PHP_EOL . PHP_EOL;
-        file_put_contents($this->fileName, $log, FILE_APPEND);
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
     private function unsafeLog(string $method, string $uri, array $query) : void
@@ -130,11 +145,10 @@ class HttpResourceClient implements ResourceInterface
         $path = parse_url($uri, PHP_URL_PATH);
         $query = $query + (array) parse_url($uri, PHP_URL_QUERY);
         $json = json_encode($query);
-        $curl = sprintf("curl -s -i -H 'Content-Type:application/json' -X %s -d '%s' http://127.0.0.1:8088%s", $method, $json, $path);
+        $curl = sprintf("curl -s -i -H 'Content-Type:application/json' -X %s -d '%s' %s%s", $method, $json, $this->baseUri, $path);
         exec($curl, $output);
-        assert(is_array($output));
         $responseLog = implode(PHP_EOL, $output);
         $log = sprintf("%s\n\n%s", $curl, $responseLog) . PHP_EOL . PHP_EOL;
-        file_put_contents($this->fileName, $log, FILE_APPEND);
+        file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 }

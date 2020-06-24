@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace MyVendor\MyProject\Inetgration;
 
+use BEAR\Dev\Http\BuiltinServerStartTrait;
 use BEAR\Dev\Http\HttpResourceClient;
-use BEAR\Dev\Http\HttpServiceTrait;
 use MyVendor\MyProject\Workflow\DemoTest as Workflow;
 
 class DemoTest extends Workflow
 {
-    use HttpServiceTrait;
+    use BuiltinServerStartTrait;
 
     protected function setUp() : void
     {
