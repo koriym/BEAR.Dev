@@ -4,37 +4,27 @@ declare(strict_types=1);
 
 namespace BEAR\Skeleton\Hypermedia;
 
-use BEAR\Dev\Db\DbProfile;
 use BEAR\Resource\ResourceInterface;
 use BEAR\Resource\ResourceObject;
 use BEAR\Skeleton\Injector;
 use PHPUnit\Framework\TestCase;
 use Ray\Di\InjectorInterface;
 
-class HypermediaTest extends TestCase
+class WorkflowTest extends TestCase
 {
-    /**
-     * @var ResourceInterface
-     */
+    /** @var ResourceInterface */
     protected $resource;
 
-    /**
-     * @var InjectorInterface
-     */
+    /** @var InjectorInterface */
     protected $injector;
 
-    /**
-     * @var DbProfile
-     */
-    private $dbProfile;
-
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $this->injector = Injector::getInstance('app');
         $this->resource = $this->injector->getInstance(ResourceInterface::class);
     }
 
-    public function testIndex() : ResourceObject
+    public function testIndex(): ResourceObject
     {
         $index = $this->resource->get('/index');
         $this->assertSame(200, $index->code);
