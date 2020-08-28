@@ -40,6 +40,11 @@ final class BuiltinServer
     public function start() : void
     {
         $this->process->start();
+        if (version_compare(PHP_VERSION, '7.4.0', '<')) {
+            sleep(1);
+
+            return;
+        }
         $this->process->waitUntil(function (string $type, string $output) : bool {
             if ($type === 'err' && ! is_int(strpos($output, 'started'))) {
                 error_log($output);
