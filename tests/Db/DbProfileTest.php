@@ -17,16 +17,17 @@ class DbProfileTest extends TestCase
 {
     /** @var array<int, array<string, mixed>> */
     public static $log;
+
     /** @var ExtendedPdoInterface */
     private $pdo;
 
     /** @var InjectorInterface */
     private $injector;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         $injector = new Injector(new class extends AbstractModule {
-            protected function configure() : void
+            protected function configure(): void
             {
                 $this->bind(ExtendedPdoInterface::class)->toInstance(new ExtendedPdo('sqlite::memory:'));
                 $this->bind(LoggerInterface::class)->toInstance(
@@ -37,14 +38,13 @@ class DbProfileTest extends TestCase
                         }
                     }
                 );
-                $this->install(new DevPdoModule());
             }
         });
         $this->pdo = $injector->getInstance(ExtendedPdoInterface::class);
         $this->injector = $injector;
     }
 
-    public function testLog()
+    public function testLog(): void
     {
         new DbProfile($this->injector); // Start SQL log
         $this->pdo->exec(/** @lang sql */'CREATE TABLE user(name, age)');
