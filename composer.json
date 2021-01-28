@@ -20,7 +20,7 @@
     },
     "autoload": {
         "psr-4": {
-            "BEAR\\Dev\\": "src/"
+            "BEAR\\Dev\\": ["src/", "src-deprecated/"]
         }
     },
     "autoload-dev": {
