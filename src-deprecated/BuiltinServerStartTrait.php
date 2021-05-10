@@ -11,6 +11,9 @@ use ReflectionClass;
 use function dirname;
 use function str_replace;
 
+/**
+ * @deprecated User HttpResource instead
+ */
 trait BuiltinServerStartTrait
 {
     /**

@@ -17,10 +17,7 @@ jobs:
           - ubuntu-latest
         php-version:
           - '7.3'
-          - '7.4'
-          - '8.0'
         dependencies:
-          - lowest
           - highest
     steps:
       - name: Checkout
@@ -57,6 +54,9 @@ jobs:
 
       - name: Run test suite
         run: ./vendor/bin/phpunit --coverage-clover=coverage.xml
+
+      - name: Show the curl log
+        run: cat tests/Http/log/app.log
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v1

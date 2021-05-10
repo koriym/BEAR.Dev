@@ -8,3 +8,4 @@
 /vendor-bin/tools/vendor/
 tests/Http/log/HttpResourceClientTest.log
 coverage.xml
+tests/Http/log/app.log

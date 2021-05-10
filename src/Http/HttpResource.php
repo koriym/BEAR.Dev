@@ -4,37 +4,32 @@ declare(strict_types=1);
 
 namespace BEAR\Dev\Http;
 
+use BEAR\Resource\Module\ResourceModule;
 use BEAR\Resource\RequestInterface;
 use BEAR\Resource\ResourceInterface;
 use BEAR\Resource\ResourceObject;
-use InvalidArgumentException;
 use LogicException;
-use Ray\Di\InjectorInterface;
-use ReflectionClass;
+use Ray\Di\Injector;
 
 use function array_key_exists;
 use function assert;
-use function class_exists;
-use function dirname;
 use function exec;
+use function file_exists;
 use function file_put_contents;
-use function filter_var;
 use function http_build_query;
 use function implode;
+use function in_array;
 use function is_array;
 use function json_encode;
 use function parse_url;
 use function sprintf;
-use function strrpos;
-use function substr;
 
 use const FILE_APPEND;
-use const FILTER_VALIDATE_URL;
 use const PHP_EOL;
 use const PHP_URL_PATH;
 use const PHP_URL_QUERY;
 
-class HttpResourceClient implements ResourceInterface
+final class HttpResource implements ResourceInterface
 {
     /** @var ResourceInterface */
     private $resource;
@@ -45,25 +40,46 @@ class HttpResourceClient implements ResourceInterface
     /** @var string */
     private $baseUri;
 
-    /**
-     * @psalm-param class-string $className
-     */
-    public function __construct(string $baseUri, InjectorInterface $injector, string $className)
+    /** @var BuiltinServer */
+    private static $server;
+
+    public function __construct(string $host, string $index, string $logFile = 'php://stderr')
     {
-        static $firstRun = true;
+        $this->baseUri = sprintf('http://%s', $host);
+        $this->logFile = $logFile;
+        $this->resetLog($logFile);
 
-        if (! filter_var($baseUri, FILTER_VALIDATE_URL)) {
-            throw new InvalidArgumentException($baseUri);
+        $this->startServer($host, $index);
+        $module = new ResourceModule('BEAR/Sunday');
+        $this->resource = (new Injector($module))->getInstance(ResourceInterface::class);
+    }
+
+    private function startServer(string $host, string $index): void
+    {
+        /** @var array<string> $started */
+        static $started = [];
+
+        $id = $host . $index;
+        if (in_array($id, $started)) {
+            return;
         }
 
-        $this->logFile = $this->getLogFile($className);
-        if ($firstRun) {
-            file_put_contents($this->logFile, '');
-            $firstRun = false;
+        self::$server = new BuiltinServer($host, $index);
+        self::$server->start();
+        $started[] = $id;
+    }
+
+    private function resetLog(string $logFile): void
+    {
+        /** @var array<string> $started */
+        static $started = [];
+
+        if (in_array($logFile, $started) || ! file_exists($logFile)) {
+            return;
         }
 
-        $this->resource = $injector->getInstance(ResourceInterface::class);
-        $this->baseUri = $baseUri;
+        file_put_contents($logFile, '');
+        $started[] = $logFile;
     }
 
     /**
@@ -182,15 +198,6 @@ class HttpResourceClient implements ResourceInterface
     public function options(string $uri, array $query = []): ResourceObject
     {
         throw new LogicException();
-    }
-
-    public function getLogFile(string $className): string
-    {
-        $class = substr($className, (int) strrpos($className, '\\') + 1);
-        assert(class_exists($className));
-        $dir = dirname((string) (new ReflectionClass($className))->getFileName());
-
-        return sprintf('%s/log/%s.log', $dir, $class);
     }
 
     /**
