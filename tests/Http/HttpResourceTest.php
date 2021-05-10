@@ -19,12 +19,12 @@ class HttpResourceTest extends TestCase
     {
         $index = dirname(__DIR__) . '/Fake/app/public/index.php';
         assert(file_exists($index));
-        $this->resource = new HttpResource('127.0.0.1:8099', $index, __DIR__ . '/log/app.log');
+        $this->resource = new HttpResource('127.0.0.1:8080', $index, __DIR__ . '/log/app.log');
     }
 
     public function testOnGet(): void
     {
-        $ro = $this->resource->get('http://127.0.0.1:8099/');
+        $ro = $this->resource->get('http://127.0.0.1:8080/');
         $this->assertSame(200, $ro->code);
         $this->assertStringContainsString('"method": "onGet"', $ro->view);
     }
@@ -61,8 +61,8 @@ class HttpResourceTest extends TestCase
     public function testStdErrLog(): void
     {
         $index = dirname(__DIR__) . '/Fake/app/public/index.php';
-        $resource = new HttpResource('127.0.0.1:8099', $index);
-        $ro = $resource->get('http://127.0.0.1:8099/');
+        $resource = new HttpResource('127.0.0.1:8080', $index);
+        $ro = $resource->get('http://127.0.0.1:8080/');
         $this->assertSame(200, $ro->code);
         $this->assertStringContainsString('"method": "onGet"', $ro->view);
     }
