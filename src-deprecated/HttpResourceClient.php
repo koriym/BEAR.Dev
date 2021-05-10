@@ -34,6 +34,9 @@ use const PHP_EOL;
 use const PHP_URL_PATH;
 use const PHP_URL_QUERY;
 
+/**
+ * @deprecated User HttpResource instead
+ */
 class HttpResourceClient implements ResourceInterface
 {
     /** @var ResourceInterface */
