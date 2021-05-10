@@ -20,6 +20,7 @@
     <file>src</file>
     <file>tests</file>
     <exclude-pattern>*/tests/tmp/*</exclude-pattern>
+    <exclude-pattern>*/tests/Fake/*</exclude-pattern>
 
     <!-- PSR12 Coding Standard -->
     <rule ref="PSR12"/>
@@ -31,6 +32,7 @@
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousAbstractClassNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousInterfaceNaming"/>
+        <exclude name="SlevomatCodingStandard.Classes.SuperfluousTraitNaming.SuperfluousSuffix"/>
         <exclude name="Squiz.Strings.DoubleQuoteUsage.ContainsVar"/>
         <!-- Exclude files -->
         <exclude-pattern>*/tests/Fake/*</exclude-pattern>
