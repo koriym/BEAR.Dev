@@ -8,15 +8,37 @@ use BEAR\Resource\ResourceObject;
 
 class Index extends ResourceObject
 {
-    /** @var array{greeting: string} */
-    public $body;
-
-    /** @return static */
-    public function onGet(string $name = 'BEAR.Sunday')
+    public function onGet()
     {
-        $this->body = [
-            'greeting' => 'Hello ' . $name,
-        ];
+        $this->body = ['method' => __FUNCTION__];
+
+        return $this;
+    }
+
+    public function onPost()
+    {
+        $this->body = ['method' => __FUNCTION__];
+
+        return $this;
+    }
+
+    public function onPut()
+    {
+        $this->body = ['method' => __FUNCTION__];
+
+        return $this;
+    }
+
+    public function onPatch()
+    {
+        $this->body = ['method' => __FUNCTION__];
+
+        return $this;
+    }
+
+    public function onDelete()
+    {
+        $this->body = ['method' => __FUNCTION__];
 
         return $this;
     }

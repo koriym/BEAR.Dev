@@ -69,11 +69,11 @@ final class BuiltinServer
 
     public function stop(): void
     {
+        // @codeCoverageIgnoreStart
         $exitCode = $this->process->stop();
         if ($exitCode !== 143) {
-            // @codeCoverageIgnoreStart
             throw new RuntimeException(sprintf('code:%s msg:%s', (string) $exitCode, $this->process->getErrorOutput()));
-            // @codeCoverageIgnoreEnd
         }
+        // @codeCoverageIgnoreEnd
     }
 }
