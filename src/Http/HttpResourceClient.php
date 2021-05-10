@@ -12,6 +12,7 @@ use LogicException;
 use Ray\Di\InjectorInterface;
 use ReflectionClass;
 
+use function array_key_exists;
 use function assert;
 use function class_exists;
 use function dirname;
@@ -20,6 +21,7 @@ use function file_put_contents;
 use function filter_var;
 use function http_build_query;
 use function implode;
+use function is_array;
 use function json_encode;
 use function parse_url;
 use function sprintf;
@@ -48,12 +50,18 @@ class HttpResourceClient implements ResourceInterface
      */
     public function __construct(string $baseUri, InjectorInterface $injector, string $className)
     {
+        static $firstRun = true;
+
         if (! filter_var($baseUri, FILTER_VALIDATE_URL)) {
             throw new InvalidArgumentException($baseUri);
         }
 
         $this->logFile = $this->getLogFile($className);
-        file_put_contents($this->logFile, '');
+        if ($firstRun) {
+            file_put_contents($this->logFile, '');
+            $firstRun = false;
+        }
+
         $this->resource = $injector->getInstance(ResourceInterface::class);
         $this->baseUri = $baseUri;
     }
@@ -80,7 +88,8 @@ class HttpResourceClient implements ResourceInterface
 
     public function get(string $uri, array $query = []): ResourceObject
     {
-        $response = $this->resource->get($uri, $query);
+        $httpUri = $this->getHttpUrl($uri);
+        $response = $this->resource->{__FUNCTION__}($httpUri, $query);
         $this->safeLog($uri, $query);
 
         return $response;
@@ -88,7 +97,8 @@ class HttpResourceClient implements ResourceInterface
 
     public function post(string $uri, array $query = []): ResourceObject
     {
-        $response = $this->resource->put($uri, $query);
+        $httpUri = $this->getHttpUrl($uri);
+        $response = $this->resource->{__FUNCTION__}($httpUri, $query);
         $this->unsafeLog('POST', $uri, $query);
 
         return $response;
@@ -96,7 +106,8 @@ class HttpResourceClient implements ResourceInterface
 
     public function put(string $uri, array $query = []): ResourceObject
     {
-        $response = $this->resource->put($uri, $query);
+        $httpUri = $this->getHttpUrl($uri);
+        $response = $this->resource->{__FUNCTION__}($httpUri, $query);
         $this->unsafeLog('PUT', $uri, $query);
 
         return $response;
@@ -104,12 +115,17 @@ class HttpResourceClient implements ResourceInterface
 
     public function patch(string $uri, array $query = []): ResourceObject
     {
-        throw new LogicException();
+        $httpUri = $this->getHttpUrl($uri);
+        $response = $this->resource->{__FUNCTION__}($httpUri, $query);
+        $this->unsafeLog('PATCH', $uri, $query);
+
+        return $response;
     }
 
     public function delete(string $uri, array $query = []): ResourceObject
     {
-        $response = $this->resource->put($uri, $query);
+        $httpUri = $this->getHttpUrl($uri);
+        $response = $this->resource->{__METHOD__}($httpUri, $query);
         $this->unsafeLog('DELETE', $uri, $query);
 
         return $response;
@@ -162,5 +178,19 @@ class HttpResourceClient implements ResourceInterface
         $responseLog = implode(PHP_EOL, $output);
         $log = sprintf("%s\n\n%s", $curl, $responseLog) . PHP_EOL . PHP_EOL;
         file_put_contents($this->logFile, $log, FILE_APPEND);
+    }
+
+    public function getHttpUrl(string $uri): string
+    {
+        $pUri = parse_url($uri);
+        assert(is_array($pUri));
+        assert(array_key_exists('path', $pUri));
+        if (array_key_exists('scheme', $pUri) && ($pUri['scheme'] === 'http' || $pUri['scheme'] === 'https')) {
+            return $uri;
+        }
+
+        $query = isset($pUri['query']) ? sprintf('?%s', $pUri['query']) : '';
+
+        return sprintf('%s%s%s', $this->baseUri, $pUri['path'], $query);
     }
 }

@@ -9,7 +9,8 @@
         }
     ],
     "require": {
-        "php": ">=7.2.0",
+        "php": "^7.3 || ^8.0",
+        "ext-json": "*",
         "guzzlehttp/guzzle": "^6.5",
         "symfony/process": "^5.0",
         "aura/sql": "^3.0"
