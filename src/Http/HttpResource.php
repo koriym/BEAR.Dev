@@ -50,7 +50,7 @@ final class HttpResource implements ResourceInterface
         $this->resetLog($logFile);
 
         $this->startServer($host, $index);
-        $module = new ResourceModule('');
+        $module = new ResourceModule('BEAR/Sunday');
         $this->resource = (new Injector($module))->getInstance(ResourceInterface::class);
     }
 
