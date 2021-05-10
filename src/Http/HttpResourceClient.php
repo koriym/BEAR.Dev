@@ -66,26 +66,47 @@ class HttpResourceClient implements ResourceInterface
         $this->baseUri = $baseUri;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @codeCoverageIgnore
+     */
     public function newInstance($uri): ResourceObject
     {
         throw new LogicException();
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
     public function object(ResourceObject $ro): RequestInterface
     {
         throw new LogicException();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @codeCoverageIgnore
+     */
     public function uri($uri): RequestInterface
     {
         throw new LogicException();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @codeCoverageIgnore
+     */
     public function href(string $rel, array $query = []): ResourceObject
     {
         throw new LogicException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function get(string $uri, array $query = []): ResourceObject
     {
         $httpUri = $this->getHttpUrl($uri);
@@ -95,6 +116,9 @@ class HttpResourceClient implements ResourceInterface
         return $response;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function post(string $uri, array $query = []): ResourceObject
     {
         $httpUri = $this->getHttpUrl($uri);
@@ -104,6 +128,9 @@ class HttpResourceClient implements ResourceInterface
         return $response;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function put(string $uri, array $query = []): ResourceObject
     {
         $httpUri = $this->getHttpUrl($uri);
@@ -113,6 +140,9 @@ class HttpResourceClient implements ResourceInterface
         return $response;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function patch(string $uri, array $query = []): ResourceObject
     {
         $httpUri = $this->getHttpUrl($uri);
@@ -122,20 +152,33 @@ class HttpResourceClient implements ResourceInterface
         return $response;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     public function delete(string $uri, array $query = []): ResourceObject
     {
         $httpUri = $this->getHttpUrl($uri);
-        $response = $this->resource->{__METHOD__}($httpUri, $query);
+        $response = $this->resource->{__FUNCTION__}($httpUri, $query);
         $this->unsafeLog('DELETE', $uri, $query);
 
         return $response;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @codeCoverageIgnore
+     */
     public function head(string $uri, array $query = []): ResourceObject
     {
         throw new LogicException();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @codeCoverageIgnore
+     */
     public function options(string $uri, array $query = []): ResourceObject
     {
         throw new LogicException();
