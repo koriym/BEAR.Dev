@@ -9,31 +9,30 @@ use Ray\Di\InjectorInterface;
 use ReflectionClass;
 
 use function dirname;
-use function str_replace;
+use function register_shutdown_function;
 
 /**
  * @deprecated User HttpResource instead
  */
 trait BuiltinServerStartTrait
 {
-    /**
-     * Hosting built server URL
-     *
-     * User can change it in unit test
-     *
-     * @var string
-     */
-    protected static $httpHost = 'http://127.0.0.1:8088';
+    /** @var string */
+    private static $host = '127.0.0.1:8088';
+
+    /** @var string */
+    private $httpHost = 'http://127.0.0.1:8088';
 
     /** @var BuiltinServer */
     private static $server;
 
     public static function setUpBeforeClass(): void
     {
-        $host = str_replace(['http://', 'https://'], '', self::$httpHost);
         $dir = dirname((new ReflectionClass(static::class))->getFileName());
-        self::$server = new BuiltinServer($host, $dir . '/index.php');
+        self::$server = new BuiltinServer(self::$host, $dir . '/index.php');
         self::$server->start();
+        register_shutdown_function(static function () {
+            self::$server->stop();
+        });
     }
 
     public static function tearDownAfterClass(): void
@@ -43,6 +42,6 @@ trait BuiltinServerStartTrait
 
     public function getHttpResourceClient(InjectorInterface $injector, string $class): ResourceInterface
     {
-        return new HttpResourceClient(self::$httpHost, $injector, $class);
+        return new HttpResourceClient($this->httpHost, $injector, $class);
     }
 }
