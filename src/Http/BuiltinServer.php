@@ -38,8 +38,10 @@ final class BuiltinServer
             $index,
         ]);
         $this->host = $host;
-        register_shutdown_function(function () {
+        register_shutdown_function(function (): void {
+            // @codeCoverageIgnoreStart
             $this->process->stop();
+            // @codeCoverageIgnoreEnd
         });
     }
 
@@ -47,14 +49,18 @@ final class BuiltinServer
     {
         $this->process->start();
         if (version_compare(PHP_VERSION, '7.4.0', '<')) {
+            // @codeCoverageIgnoreStart
             sleep(1);
 
             return;
+            // @codeCoverageIgnoreEnd
         }
 
         $this->process->waitUntil(function (string $type, string $output): bool {
             if ($type === 'err' && ! is_int(strpos($output, 'started'))) {
+                // @codeCoverageIgnoreStart
                 error_log($output);
+                // @codeCoverageIgnoreEnd
             }
 
             return (bool) strpos($output, $this->host);
@@ -65,7 +71,9 @@ final class BuiltinServer
     {
         $exitCode = $this->process->stop();
         if ($exitCode !== 143) {
+            // @codeCoverageIgnoreStart
             throw new RuntimeException(sprintf('code:%s msg:%s', (string) $exitCode, $this->process->getErrorOutput()));
+            // @codeCoverageIgnoreEnd
         }
     }
 }

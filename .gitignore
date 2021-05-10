@@ -6,3 +6,5 @@
 /.phpcs-cache
 /.php_cs.cache
 /vendor-bin/tools/vendor/
+tests/Http/log/HttpResourceClientTest.log
+coverage.xml

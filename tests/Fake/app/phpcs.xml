@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <ruleset
-        name="BEAR.Skeleton"
+        name="MyVendor.MyProject"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:noNamespaceSchemaLocation="vendor-bin/tools/vendor/squizlabs/php_codesniffer/phpcs.xsd"
 >
-    <description>BEAR.Skeleton Coding Standard</description>
+    <description>MyVendor.MyProject Coding Standard</description>
     <arg name="basepath" value="."/>
     <arg name="extensions" value="php"/>
     <arg name="parallel" value="80"/>
     <arg name="cache" value=".phpcs-cache"/>
 
     <!-- PHP version -->
-    <config name="php_version" value="{php_version}"/>
+    <config name="php_version" value="80003"/>
 
     <!-- Ignore warnings, show progress of the run and show sniff names -->
     <arg value="nps"/>
@@ -20,7 +20,6 @@
     <file>src</file>
     <file>tests</file>
     <exclude-pattern>*/tests/tmp/*</exclude-pattern>
-    <exclude-pattern>*/tests/Fake/*</exclude-pattern>
 
     <!-- PSR12 Coding Standard -->
     <rule ref="PSR12"/>
@@ -32,7 +31,6 @@
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousAbstractClassNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousExceptionNaming"/>
         <exclude name="SlevomatCodingStandard.Classes.SuperfluousInterfaceNaming"/>
-        <exclude name="SlevomatCodingStandard.Classes.SuperfluousTraitNaming.SuperfluousSuffix"/>
         <exclude name="Squiz.Strings.DoubleQuoteUsage.ContainsVar"/>
         <!-- Exclude files -->
         <exclude-pattern>*/tests/Fake/*</exclude-pattern>
