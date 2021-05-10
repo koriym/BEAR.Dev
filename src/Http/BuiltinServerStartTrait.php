@@ -27,7 +27,7 @@ trait BuiltinServerStartTrait
         $dir = dirname((new ReflectionClass(static::class))->getFileName());
         self::$server = new BuiltinServer(self::$host, $dir . '/index.php');
         self::$server->start();
-        register_shutdown_function(static function () {
+        register_shutdown_function(static function (): void {
             self::$server->stop();
         });
     }

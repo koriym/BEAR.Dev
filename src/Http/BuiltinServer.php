@@ -38,7 +38,7 @@ final class BuiltinServer
             $index,
         ]);
         $this->host = $host;
-        register_shutdown_function(function () {
+        register_shutdown_function(function (): void {
             $this->process->stop();
         });
     }

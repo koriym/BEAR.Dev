@@ -32,7 +32,7 @@ class DbProfileTest extends TestCase
                 $this->bind(ExtendedPdoInterface::class)->toInstance(new ExtendedPdo('sqlite::memory:'));
                 $this->bind(LoggerInterface::class)->toInstance(
                     new class extends AbstractLogger {
-                        public function log($level, $message, array $context = [])
+                        public function log($level, $message, array $context = []): void
                         {
                             DbProfileTest::$log[] = $context;
                         }
