@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace BEAR\Dev\Http;
 
+use BEAR\Dev\QueryMerger;
 use BEAR\Resource\Module\ResourceModule;
 use BEAR\Resource\RequestInterface;
 use BEAR\Resource\ResourceInterface;
@@ -26,8 +27,6 @@ use function sprintf;
 
 use const FILE_APPEND;
 use const PHP_EOL;
-use const PHP_URL_PATH;
-use const PHP_URL_QUERY;
 
 final class HttpResource implements ResourceInterface
 {
@@ -43,6 +42,9 @@ final class HttpResource implements ResourceInterface
     /** @var BuiltinServer */
     private static $server;
 
+    /** @var QueryMerger */
+    private $queryMerger;
+
     public function __construct(string $host, string $index, string $logFile = 'php://stderr')
     {
         $this->baseUri = sprintf('http://%s', $host);
@@ -52,6 +54,7 @@ final class HttpResource implements ResourceInterface
         $this->startServer($host, $index);
         $module = new ResourceModule('BEAR/Sunday');
         $this->resource = (new Injector($module))->getInstance(ResourceInterface::class);
+        $this->queryMerger = new QueryMerger();
     }
 
     private function startServer(string $host, string $index): void
@@ -205,10 +208,9 @@ final class HttpResource implements ResourceInterface
      */
     private function safeLog(string $uri, array $query): void
     {
-        $path = parse_url($uri, PHP_URL_PATH);
-        $query += (array) parse_url($uri, PHP_URL_QUERY);
-        $queryParameter = $query ? '?' . http_build_query($query) : '';
-        $curl = sprintf("curl -s -i '%s%s%s'", $this->baseUri, $path, $queryParameter);
+        $uri = ($this->queryMerger)($uri, $query);
+        $queryParameter = $uri->query ? '?' . http_build_query($uri->query) : '';
+        $curl = sprintf("curl -s -i '%s%s%s'", $this->baseUri, $uri->path, $queryParameter);
         exec($curl, $output);
         $responseLog = implode(PHP_EOL, $output);
         $log = sprintf("%s\n\n%s", $curl, $responseLog) . PHP_EOL . PHP_EOL;
@@ -220,10 +222,9 @@ final class HttpResource implements ResourceInterface
      */
     private function unsafeLog(string $method, string $uri, array $query): void
     {
-        $path = parse_url($uri, PHP_URL_PATH);
-        $query += (array) parse_url($uri, PHP_URL_QUERY);
-        $json = json_encode($query);
-        $curl = sprintf("curl -s -i -H 'Content-Type:application/json' -X %s -d '%s' %s%s", $method, $json, $this->baseUri, $path);
+        $uri = ($this->queryMerger)($uri, $query);
+        $json = json_encode($uri->query);
+        $curl = sprintf("curl -s -i -H 'Content-Type:application/json' -X %s -d '%s' %s%s", $method, $json, $this->baseUri, $uri->path);
         exec($curl, $output);
         $responseLog = implode(PHP_EOL, $output);
         $log = sprintf("%s\n\n%s", $curl, $responseLog) . PHP_EOL . PHP_EOL;
