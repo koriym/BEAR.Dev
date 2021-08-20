@@ -18,7 +18,7 @@ final class QueryMerger
     public function __invoke(string $uri, array $query): Uri
     {
         $path = (string) parse_url($uri, PHP_URL_PATH);
-        $uriQueryString = (string) parse_url((string) $uri, PHP_URL_QUERY);
+        $uriQueryString = (string) parse_url($uri, PHP_URL_QUERY);
         parse_str($uriQueryString, $uriQuery);
         $mergedQuery = $uriQuery + $query;
 
