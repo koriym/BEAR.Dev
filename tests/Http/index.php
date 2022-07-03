@@ -6,4 +6,4 @@ use MyVendor\MyProject\Bootstrap;
 
 require dirname(__DIR__) . '/Fake/app/vendor/autoload.php';
 
-exit((new Bootstrap())('hal-app', $GLOBALS, $_SERVER));
+exit((new Bootstrap())('prod-hal-app', $GLOBALS, $_SERVER));
