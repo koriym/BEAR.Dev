@@ -5,24 +5,19 @@ declare(strict_types=1);
 namespace BEAR\Dev\Http;
 
 use BEAR\Dev\QueryMerger;
-use BEAR\Resource\Module\ResourceModule;
+use BEAR\Dev\Uri;
 use BEAR\Resource\RequestInterface;
 use BEAR\Resource\ResourceInterface;
 use BEAR\Resource\ResourceObject;
 use LogicException;
-use Ray\Di\Injector;
 
-use function array_key_exists;
-use function assert;
 use function exec;
 use function file_exists;
 use function file_put_contents;
 use function http_build_query;
 use function implode;
 use function in_array;
-use function is_array;
 use function json_encode;
-use function parse_url;
 use function sprintf;
 
 use const FILE_APPEND;
@@ -30,9 +25,6 @@ use const PHP_EOL;
 
 final class HttpResource implements ResourceInterface
 {
-    /** @var ResourceInterface */
-    private $resource;
-
     /** @var string */
     private $logFile = '';
 
@@ -45,6 +37,9 @@ final class HttpResource implements ResourceInterface
     /** @var QueryMerger */
     private $queryMerger;
 
+    /** @var CreateResponse */
+    private $createResponse;
+
     public function __construct(string $host, string $index, string $logFile = 'php://stderr')
     {
         $this->baseUri = sprintf('http://%s', $host);
@@ -52,9 +47,8 @@ final class HttpResource implements ResourceInterface
         $this->resetLog($logFile);
 
         $this->startServer($host, $index);
-        $module = new ResourceModule('BEAR/Sunday');
-        $this->resource = (new Injector($module))->getInstance(ResourceInterface::class);
         $this->queryMerger = new QueryMerger();
+        $this->createResponse = new CreateResponse();
     }
 
     private function startServer(string $host, string $index): void
@@ -130,11 +124,7 @@ final class HttpResource implements ResourceInterface
      */
     public function get(string $uri, array $query = []): ResourceObject
     {
-        $httpUri = $this->getHttpUrl($uri);
-        $response = $this->resource->{__FUNCTION__}($httpUri, $query);
-        $this->safeLog($uri, $query);
-
-        return $response;
+        return $this->safeRequest($uri, $query);
     }
 
     /**
@@ -142,11 +132,7 @@ final class HttpResource implements ResourceInterface
      */
     public function post(string $uri, array $query = []): ResourceObject
     {
-        $httpUri = $this->getHttpUrl($uri);
-        $response = $this->resource->{__FUNCTION__}($httpUri, $query);
-        $this->unsafeLog('POST', $uri, $query);
-
-        return $response;
+        return $this->unsafeRequest('POST', $uri, $query);
     }
 
     /**
@@ -154,11 +140,7 @@ final class HttpResource implements ResourceInterface
      */
     public function put(string $uri, array $query = []): ResourceObject
     {
-        $httpUri = $this->getHttpUrl($uri);
-        $response = $this->resource->{__FUNCTION__}($httpUri, $query);
-        $this->unsafeLog('PUT', $uri, $query);
-
-        return $response;
+        return $this->unsafeRequest('PUT', $uri, $query);
     }
 
     /**
@@ -166,11 +148,7 @@ final class HttpResource implements ResourceInterface
      */
     public function patch(string $uri, array $query = []): ResourceObject
     {
-        $httpUri = $this->getHttpUrl($uri);
-        $response = $this->resource->{__FUNCTION__}($httpUri, $query);
-        $this->unsafeLog('PATCH', $uri, $query);
-
-        return $response;
+        return $this->unsafeRequest('PATCH', $uri, $query);
     }
 
     /**
@@ -178,11 +156,7 @@ final class HttpResource implements ResourceInterface
      */
     public function delete(string $uri, array $query = []): ResourceObject
     {
-        $httpUri = $this->getHttpUrl($uri);
-        $response = $this->resource->{__FUNCTION__}($httpUri, $query);
-        $this->unsafeLog('DELETE', $uri, $query);
-
-        return $response;
+        return $this->unsafeRequest('DELETE', $uri, $query);
     }
 
     /**
@@ -208,42 +182,44 @@ final class HttpResource implements ResourceInterface
     /**
      * @param array<string> $query
      */
-    private function safeLog(string $uri, array $query): void
+    private function safeRequest(string $path, array $query): ResourceObject
     {
-        $uri = ($this->queryMerger)($uri, $query);
+        $uri = ($this->queryMerger)($path, $query);
         $queryParameter = $uri->query ? '?' . http_build_query($uri->query) : '';
-        $curl = sprintf("curl -s -i '%s%s%s'", $this->baseUri, $uri->path, $queryParameter);
-        exec($curl, $output);
-        $responseLog = implode(PHP_EOL, $output);
-        $log = sprintf("%s\n\n%s", $curl, $responseLog) . PHP_EOL . PHP_EOL;
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        $pathQuery = sprintf('%s%s', $uri->path, $queryParameter);
+        $curl = sprintf("curl -s -i '%s%s'", $this->baseUri, $pathQuery);
+
+        return $this->request($curl, $uri);
     }
 
     /**
      * @param array<string> $query
      */
-    private function unsafeLog(string $method, string $uri, array $query): void
+    private function unsafeRequest(string $method, string $path, array $query): ResourceObject
     {
-        $uri = ($this->queryMerger)($uri, $query);
+        $uri = ($this->queryMerger)($path, $query);
         $json = json_encode($uri->query);
         $curl = sprintf("curl -s -i -H 'Content-Type:application/json' -X %s -d '%s' %s%s", $method, $json, $this->baseUri, $uri->path);
-        exec($curl, $output);
+
+        return $this->request($curl, $uri);
+    }
+
+    /**
+     * @param array<string> $output
+     */
+    public function log(array $output, string $curl): void
+    {
         $responseLog = implode(PHP_EOL, $output);
         $log = sprintf("%s\n\n%s", $curl, $responseLog) . PHP_EOL . PHP_EOL;
         file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
-    public function getHttpUrl(string $uri): string
+    public function request(string $curl, Uri $uri): ResourceObject
     {
-        $pUri = parse_url($uri);
-        assert(is_array($pUri));
-        assert(array_key_exists('path', $pUri));
-        if (array_key_exists('scheme', $pUri) && ($pUri['scheme'] === 'http' || $pUri['scheme'] === 'https')) {
-            return $uri;
-        }
+        exec($curl, $output);
+        $ro = ($this->createResponse)($uri->path, $output);
+        $this->log($output, $curl);
 
-        $query = isset($pUri['query']) ? sprintf('?%s', $pUri['query']) : '';
-
-        return sprintf('%s%s%s', $this->baseUri, $pUri['path'], $query);
+        return $ro;
     }
 }
