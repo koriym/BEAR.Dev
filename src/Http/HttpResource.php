@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace BEAR\Dev\Http;
 
 use BEAR\Dev\QueryMerger;
-use BEAR\Dev\Uri;
 use BEAR\Resource\RequestInterface;
 use BEAR\Resource\ResourceInterface;
 use BEAR\Resource\ResourceObject;
+use BEAR\Resource\Uri as ResourceUri;
 use LogicException;
 
 use function exec;
@@ -186,10 +186,10 @@ final class HttpResource implements ResourceInterface
     {
         $uri = ($this->queryMerger)($path, $query);
         $queryParameter = $uri->query ? '?' . http_build_query($uri->query) : '';
-        $pathQuery = sprintf('%s%s', $uri->path, $queryParameter);
-        $curl = sprintf("curl -s -i '%s%s'", $this->baseUri, $pathQuery);
+        $url = sprintf('%s%s%s', $this->baseUri, $uri->path, $queryParameter);
+        $curl = sprintf("curl -s -i '%s'", $url);
 
-        return $this->request($curl, $uri);
+        return $this->request($curl, 'get', $url);
     }
 
     /**
@@ -199,9 +199,11 @@ final class HttpResource implements ResourceInterface
     {
         $uri = ($this->queryMerger)($path, $query);
         $json = json_encode($uri->query);
-        $curl = sprintf("curl -s -i -H 'Content-Type:application/json' -X %s -d '%s' %s%s", $method, $json, $this->baseUri, $uri->path);
+        $url = sprintf('%s%s', $this->baseUri, $uri->path);
 
-        return $this->request($curl, $uri);
+        $curl = sprintf("curl -s -i -H 'Content-Type:application/json' -X %s -d '%s' %s", $method, $json, $url);
+
+        return $this->request($curl, $method, $url);
     }
 
     /**
@@ -214,10 +216,12 @@ final class HttpResource implements ResourceInterface
         file_put_contents($this->logFile, $log, FILE_APPEND);
     }
 
-    public function request(string $curl, Uri $uri): ResourceObject
+    public function request(string $curl, string $method, string $url): ResourceObject
     {
         exec($curl, $output);
-        $ro = ($this->createResponse)($uri->path, $output);
+        $uri = new ResourceUri($url);
+        $uri->method = $method;
+        $ro = ($this->createResponse)($uri, $output);
         $this->log($output, $curl);
 
         return $ro;

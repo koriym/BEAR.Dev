@@ -6,6 +6,7 @@ namespace BEAR\Dev\Http;
 
 use BEAR\Resource\NullResourceObject;
 use BEAR\Resource\ResourceObject;
+use BEAR\Resource\Uri;
 
 use function array_key_exists;
 use function array_pop;
@@ -17,9 +18,15 @@ use function preg_match;
 
 use const PHP_EOL;
 
+/**
+ * Create ResouceObject from curl output
+ */
 final class CreateResponse
 {
-    public function __invoke(string $pathQuery, array $output): ResourceObject
+    /**
+     * @param array<string> $output
+     */
+    public function __invoke(Uri $uri, array $output): ResourceObject
     {
         $headers = $body = [];
         $status = array_shift($output);
@@ -33,19 +40,51 @@ final class CreateResponse
             $body[] = $line;
         } while ($line !== null);
 
-        array_pop($headers);
-        array_pop($body);
-        preg_match('/\d{3}/', $status, $match);
-        assert(array_key_exists(0, $match));
-        $jsonBody = implode(PHP_EOL, $body);
-        $code = $match[0];
         $ro = new NullResourceObject();
-        $ro->uri = $pathQuery;
-        $ro->code = (int) $code;
-        $ro->headers = $headers;
-        $ro->body = (array) json_decode($jsonBody);
-        $ro->view = $jsonBody;
+        $ro->uri = $uri;
+        $ro->code = $this->getCode($status);
+        $ro->headers = $this->getHeaders($headers);
+        $view = $this->getJsonView($body);
+        $ro->body = (array) json_decode($view);
+        $ro->view = $view;
 
         return $ro;
+    }
+
+    private function getCode(string $status): int
+    {
+        preg_match('/\d{3}/', $status, $match);
+        assert(array_key_exists(0, $match));
+
+        return (int) $match[0];
+    }
+
+    /**
+     * @param array<string> $headers
+     *
+     * @return array<string, string>
+     */
+    private function getHeaders(array $headers): array
+    {
+        $keyedHeader = [];
+        array_pop($headers);
+        foreach ($headers as $header) {
+            preg_match('/(.+):\s(.+)/', $header, $matched);
+            assert(array_key_exists(1, $matched));
+            assert(array_key_exists(2, $matched));
+            $keyedHeader[$matched[1]] = $matched[2];
+        }
+
+        return $keyedHeader;
+    }
+
+    /**
+     * @param array<string, string> $body
+     */
+    private function getJsonView(array $body): string
+    {
+        array_pop($body);
+
+        return implode(PHP_EOL, $body);
     }
 }
