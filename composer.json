@@ -11,13 +11,18 @@
     "require": {
         "php": "^7.3 || ^8.0",
         "ext-json": "*",
+        "ext-filter": "*",
+        "aura/sql": "^3 || ^4 || ^5",
+        "bear/resource": "^1.17",
+        "psr/log": "^1 || ^2 || ^3",
+        "ray/aura-sql-module": "^1.10",
+        "ray/di": "^2.14",
         "symfony/process": "^5.2.7"
     },
     "require-dev": {
         "bamarni/composer-bin-plugin": "^1.4",
         "bear/package": "^1.10",
-        "phpunit/phpunit": "^9.5",
-        "ray/aura-sql-module": "^1.10"
+        "phpunit/phpunit": "^9.5"
     },
     "autoload": {
         "psr-4": {
@@ -33,17 +38,23 @@
     },
     "scripts": {
         "post-install-cmd": ["@composer bin all install --ansi"],
-        "post-update-cmd": ["@composer bin all install --ansi"],
+        "post-update-cmd": ["@composer bin all update --ansi"],
         "test": ["./vendor/bin/phpunit"],
         "tests": ["@cs", "@test", "@sa"],
         "coverage": ["php -dzend_extension=xdebug.so ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage"],
         "pcov": ["php -dextension=pcov.so -d pcov.enabled=1 ./vendor/bin/phpunit --coverage-text --coverage-html=build/coverage  --coverage-clover=coverage.xml"],
-        "cs": ["phpcs --standard=./phpcs.xml src tests"],
+        "cs": ["./vendor/bin/phpcs --standard=./phpcs.xml src tests"],
         "cs-fix": ["./vendor/bin/phpcbf src tests"],
         "clean": ["./vendor/bin/phpstan clear-result-cache", "./vendor/bin/psalm --clear-cache", "rm -rf tests/tmp/*.php"],
         "sa": ["./vendor/bin/phpstan analyse -c phpstan.neon", "psalm --show-info=true"],
         "metrics": ["./vendor/bin/phpmetrics --report-html=build/metrics --exclude=Exception --log-junit=build/junit.xml --junit=build/junit.xml src"],
         "phpmd": ["./vendor/bin/phpmd src text ./phpmd.xml"],
         "build": ["@cs", "@sa", "@pcov", "@metrics"]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true
+        }
     }
 }

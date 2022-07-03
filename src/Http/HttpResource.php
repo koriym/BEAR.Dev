@@ -100,6 +100,8 @@ final class HttpResource implements ResourceInterface
      */
     public function object(ResourceObject $ro): RequestInterface
     {
+        unset($ro);
+
         throw new LogicException();
     }
 
