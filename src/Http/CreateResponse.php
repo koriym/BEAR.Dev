@@ -13,13 +13,14 @@ use function array_pop;
 use function array_shift;
 use function assert;
 use function implode;
+use function is_string;
 use function json_decode;
 use function preg_match;
 
 use const PHP_EOL;
 
 /**
- * Create ResouceObject from curl output
+ * Create ResourceObject from curl output
  */
 final class CreateResponse
 {
@@ -29,15 +30,16 @@ final class CreateResponse
     public function __invoke(Uri $uri, array $output): ResourceObject
     {
         $headers = $body = [];
-        $status = array_shift($output);
+        $status = (string) array_shift($output);
         do {
             $line = array_shift($output);
+            assert(is_string($line));
             $headers[] = $line;
         } while ($line !== '');
 
         do {
             $line = array_shift($output);
-            $body[] = $line;
+            $body[] = (string) $line;
         } while ($line !== null);
 
         $ro = new NullResourceObject();
@@ -75,11 +77,11 @@ final class CreateResponse
             $keyedHeader[$matched[1]] = $matched[2];
         }
 
-        return $keyedHeader;
+        return $keyedHeader; // @phpstan-ignore-line
     }
 
     /**
-     * @param array<string, string> $body
+     * @param array<string> $body
      */
     private function getJsonView(array $body): string
     {

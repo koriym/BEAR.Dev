@@ -1,16 +1,2 @@
 parameters:
 	ignoreErrors:
-		-
-			message: "#^Parameter \\#2 \\$query of method BEAR\\\\Dev\\\\Http\\\\HttpResource\\:\\:safeLog\\(\\) expects array\\<string\\>, array\\<string, mixed\\> given\\.$#"
-			count: 1
-			path: src/Http/HttpResource.php
-
-		-
-			message: "#^Parameter \\#3 \\$query of method BEAR\\\\Dev\\\\Http\\\\HttpResource\\:\\:unsafeLog\\(\\) expects array\\<string\\>, array\\<string, mixed\\> given\\.$#"
-			count: 4
-			path: src/Http/HttpResource.php
-
-		-
-			message: "#^Property BEAR\\\\Dev\\\\Http\\\\HttpResource\\:\\:\\$resource \\(BEAR\\\\Resource\\\\ResourceInterface\\) does not accept mixed\\.$#"
-			count: 1
-			path: src/Http/HttpResource.php

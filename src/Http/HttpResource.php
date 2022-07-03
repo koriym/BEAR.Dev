@@ -21,12 +21,13 @@ use function json_encode;
 use function sprintf;
 
 use const FILE_APPEND;
+use const JSON_THROW_ON_ERROR;
 use const PHP_EOL;
 
 final class HttpResource implements ResourceInterface
 {
     /** @var string */
-    private $logFile = '';
+    private $logFile;
 
     /** @var string */
     private $baseUri;
@@ -180,7 +181,7 @@ final class HttpResource implements ResourceInterface
     }
 
     /**
-     * @param array<string> $query
+     * @param array<mixed> $query
      */
     private function safeRequest(string $path, array $query): ResourceObject
     {
@@ -193,12 +194,12 @@ final class HttpResource implements ResourceInterface
     }
 
     /**
-     * @param array<string> $query
+     * @param array<mixed> $query
      */
     private function unsafeRequest(string $method, string $path, array $query): ResourceObject
     {
         $uri = ($this->queryMerger)($path, $query);
-        $json = json_encode($uri->query);
+        $json = json_encode($uri->query, JSON_THROW_ON_ERROR);
         $url = sprintf('%s%s', $this->baseUri, $uri->path);
 
         $curl = sprintf("curl -s -i -H 'Content-Type:application/json' -X %s -d '%s' %s", $method, $json, $url);
