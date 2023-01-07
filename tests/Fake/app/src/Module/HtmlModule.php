@@ -8,13 +8,14 @@ use BEAR\Dotenv\Dotenv;
 use BEAR\Package\AbstractAppModule;
 use BEAR\Package\PackageModule;
 
+use BEAR\QiqModule\QiqModule;
 use Ray\Di\AbstractModule;
 use function dirname;
 
-class AppModule extends AbstractModule
+class HtmlModule extends AbstractAppModule
 {
     protected function configure(): void
     {
-        $this->install(new PackageModule());
+        $this->install(new QiqModule($this->appMeta->appDir . '/var/qiq/template'));
     }
 }

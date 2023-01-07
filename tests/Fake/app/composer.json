@@ -8,6 +8,7 @@
         "ext-json": "*",
         "bear/dotenv": "^1.0",
         "bear/package": "^1.10",
+        "bear/qiq-module": "^1.0",
         "bear/resource": "^1.15",
         "bear/sunday": "^1.5",
         "ray/aop": "^2.10",
@@ -62,7 +63,7 @@
             "@compile",
             "@metrics"
         ],
-        "serve": "php -dzend_extension=xdebug.so -S 127.0.0.1:8080 -t public",
+        "serve": "php -dzend_extension=xdebug.so -S 127.0.0.1:8081 -t public",
         "app": "php bin/app.php",
         "page": "php bin/page.php",
         "bin": "echo installing"
@@ -85,6 +86,9 @@
     },
     "config": {
         "sort-packages": true,
-        "process-timeout": 0
+        "process-timeout": 0,
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true
+        }
     }
 }
