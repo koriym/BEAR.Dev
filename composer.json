@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "php": "^7.3 || ^8.0",
+        "php": "^8.0",
         "ext-json": "*",
         "ext-filter": "*",
         "aura/sql": "^3 || ^4 || ^5",
@@ -32,7 +32,10 @@
     "autoload-dev": {
         "psr-4": {
             "BEAR\\Dev\\": [
-                "tests/"
+                "tests/Fake"
+            ],
+            "MyVendor\\MyProject\\": [
+                "tests/Fake/app/src"
             ]
         }
     },

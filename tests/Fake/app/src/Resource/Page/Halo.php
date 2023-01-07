@@ -12,7 +12,7 @@ class Halo extends ResourceObject
         'greeting' => 'Hello World!'
     ];
 
-    #[Embed(src: 'app://self/ja', rel: 'ja')]
+    #[Embed(src: 'app://self/ja?id=1', rel: 'ja')]
     public function onGet(): static
     {
         return $this;
