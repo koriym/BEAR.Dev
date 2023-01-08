@@ -26,6 +26,8 @@ use const PHP_EOL;
 
 final class HaloRenderer implements RenderInterface
 {
+    private const HALO_KEY = 'halo';
+    private const HALO_COOKIE_KEY = '_bear_sunday_disable_halo';
 
     private const NO_CACHE = 'label-default';
     private const WRITE_CACHE = 'label-danger';
@@ -50,15 +52,10 @@ final class HaloRenderer implements RenderInterface
      */
     public function render(ResourceObject $ro)
     {
-//        $disableHalo = (isset($_GET['halo']) && $_GET['halo'] === '0') || isset($_COOKIE['_bear_sunday_disable_halo']);
-//        if (!empty($_GET['halo']) && $_GET['halo'] === '1') {
-//            $disableHalo = false;
-//            setcookie("_bear_sunday_disable_halo", '', time() - 3600);
-//        }
-//        if ($disableHalo) {
-//            setcookie("_bear_sunday_disable_halo", '0');
-//            return $this->re()->render($resourceObject);
-//        }
+        if ($this->isDisableHalo()) {
+            return $this->renderer->render($ro);
+        }
+
         // resource code editor
         $pageFile =  $ro instanceof WeavedInterface ?
             (new ReflectionClass($ro))->getParentClass()->getFileName() :
@@ -81,6 +78,21 @@ final class HaloRenderer implements RenderInterface
         $ro->view = $toolView;
 
         return $haloView;
+    }
+
+    private function isDisableHalo(): bool
+    {
+        $disableHalo = (isset($_GET[self::HALO_KEY]) && $_GET[self::HALO_KEY] === '0') || isset($_COOKIE[self::HALO_COOKIE_KEY]);
+        if (! empty($_GET[self::HALO_KEY]) && $_GET[self::HALO_KEY] === '1') {
+            $disableHalo = false;
+            setcookie(self::HALO_COOKIE_KEY, '', time() - 3600);
+        }
+
+        if ($disableHalo) {
+            setcookie(self::HALO_COOKIE_KEY, '0');
+        }
+
+        return $disableHalo;
     }
 
     /**
