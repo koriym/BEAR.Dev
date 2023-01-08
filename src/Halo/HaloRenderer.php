@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace BEAR\Dev\Halo;
 
 use BEAR\Dev\DevInvoker;
-use BEAR\Dev\TemplatePathInterface;
 use BEAR\Resource\RenderInterface;
 use BEAR\Resource\Request;
 use BEAR\Resource\ResourceObject;
@@ -55,7 +54,8 @@ final class HaloRenderer implements RenderInterface
 
     public function __construct(
         #[Named('original')]
-        private RenderInterface $renderer
+        private RenderInterface $renderer,
+        private TemplateLocator $templateLocator
     ) {
     }
 
@@ -69,7 +69,7 @@ final class HaloRenderer implements RenderInterface
         }
 
         $originalView =  $this->renderer->render($ro);
-        $templatePath = $this->renderer instanceof TemplatePathInterface ? $this->renderer->getTemplatePath($ro) : '';
+        $templatePath = $this->templateLocator->get($ro);
         $haloView = $this->addHalo($originalView, $ro, $templatePath);
         $toolView = $this->addJsDevTools($haloView);
         $ro->view = $toolView;

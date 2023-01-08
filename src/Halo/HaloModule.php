@@ -24,5 +24,6 @@ final class HaloModule extends AbstractModule
         $this->bind(InvokerInterface::class)->annotatedWith('original')->to(Invoker::class);
         $this->bind(InvokerInterface::class)->to(DevInvoker::class);
         $this->bind(RenderInterface::class)->to(HaloRenderer::class)->in(Scope::SINGLETON);
+        $this->bind(TemplateLocator::class);
     }
 }
