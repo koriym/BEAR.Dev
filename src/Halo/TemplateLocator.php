@@ -6,10 +6,12 @@ namespace BEAR\Dev\Halo;
 
 use BEAR\AppMeta\AbstractAppMeta;
 use BEAR\Resource\ResourceObject;
+use Madapaja\TwigModule\Annotation\TwigPaths;
 use Ray\Aop\ReflectionClass;
 use Ray\Aop\WeavedInterface;
 use Ray\Di\Di\Named;
 
+use function file_exists;
 use function get_class;
 use function sprintf;
 use function str_replace;
@@ -18,11 +20,15 @@ use function substr;
 
 final class TemplateLocator
 {
+//    private array $twigPaths;
+
     /**
+     * @param array<string> $twigPaths
      * @param array<string> $qiqPaths
      */
     public function __construct(
         private AbstractAppMeta $meta,
+        #[TwigPaths('twigPaths')] private array $twigPaths = [],
         #[Named('qiq_paths')] private array $qiqPaths = [],
         #[Named('qiq_extension')] private string $qiqExt = '',
     ) {
@@ -30,16 +36,29 @@ final class TemplateLocator
 
     public function get(ResourceObject $ro): string
     {
-        return $this->qiqExt ? $this->getQiq($ro) : '';
+        if ($this->qiqExt) {
+            return $this->getTemplatePath($ro, $this->qiqPaths, $this->qiqExt);
+        }
+
+        if ($this->twigPaths) {
+            return $this->getTemplatePath($ro, $this->twigPaths, '.html.twig');
+        }
+
+        return '';
     }
 
-    public function getQiq(ResourceObject $ro): string
+    /**
+     * @param array<string> $paths
+     */
+    private function getTemplatePath(ResourceObject $ro, array $paths, string $ext): string
     {
-        foreach ($this->qiqPaths as $path) {
+        foreach ($paths as $path) {
             $len = strlen(sprintf('%s\Resource', $this->meta->name));
             $roPath = str_replace('\\', '/', substr($this->getClass($ro), $len + 1));
-
-            return sprintf('%s/%s%s', $path, $roPath, $this->qiqExt);
+            $maybeFile = sprintf('%s/%s%s', $path, $roPath, $ext);
+            if (file_exists($maybeFile)) {
+                return $maybeFile;
+            }
         }
 
         return '';
