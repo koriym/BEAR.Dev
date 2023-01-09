@@ -8,9 +8,11 @@ use BEAR\Resource\AbstractRequest;
 use BEAR\Resource\InvokerInterface;
 use BEAR\Resource\Request;
 use BEAR\Resource\ResourceObject;
+use Ray\Aop\MethodInterceptor;
 use Ray\Aop\WeavedInterface;
 use Ray\Di\Di\Named;
 
+use function assert;
 use function get_class;
 use function json_encode;
 use function memory_get_usage;
@@ -47,17 +49,17 @@ final class DevInvoker implements InvokerInterface
         return $this->devInvoke($resource, $request);
     }
 
-    private function devInvoke(ResourceObject $resource, AbstractRequest $request)
+    private function devInvoke(ResourceObject $resource, AbstractRequest $request): ResourceObject
     {
-        $resource->headers[self::HEADER_QUERY] = json_encode($request->query);
+        $resource->headers[self::HEADER_QUERY] = (string) json_encode($request->query);
         $time = microtime(true);
         $memory = memory_get_usage();
 
         $result = $this->invoker->invoke($request);
 
         // post process for log
-        $resource->headers[self::HEADER_EXECUTION_TIME] = microtime(true) - $time;
-        $resource->headers[self::HEADER_MEMORY_USAGE] = memory_get_usage() - $memory;
+        $resource->headers[self::HEADER_EXECUTION_TIME] = (string) (microtime(true) - $time);
+        $resource->headers[self::HEADER_MEMORY_USAGE] = (string) (memory_get_usage() - $memory);
 
         return $result;
     }
@@ -68,16 +70,19 @@ final class DevInvoker implements InvokerInterface
             return $request->resourceObject;
         }
 
+        assert(isset($request->resourceObject->bindings));
         $bind = $request->resourceObject->bindings;
         $interceptors = $this->getBindInfo($bind);
-        $request->resourceObject->headers[self::HEADER_INTERCEPTORS] = json_encode($interceptors);
+        $request->resourceObject->headers[self::HEADER_INTERCEPTORS] = (string) json_encode($interceptors);
 //        $ro->headers[self::HEADER_INTERCEPTORS] = json_encode($interceptors);
 
         return $request->resourceObject;
     }
 
     /**
-     * @return array
+     * @param array<string, array<MethodInterceptor>> $bindgs
+     *
+     * @return array<string, array<string>>
      */
     public function getBindInfo(array $bindgs): array
     {

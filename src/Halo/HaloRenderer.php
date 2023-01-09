@@ -12,7 +12,6 @@ use Ray\Aop\WeavedInterface;
 use Ray\Di\Di\Named;
 use ReflectionClass;
 use ReflectionObject;
-use Traversable;
 
 use function array_walk_recursive;
 use function assert;
@@ -49,7 +48,6 @@ final class HaloRenderer implements RenderInterface
     private const RESOURCE_LABEL = 'label-success';
     private const BADGE_INTERCEPTORS = '<span class="badge badge-info">Interceptors</span>';
     private const BADGE_PROFILE = '<span class="badge badge-info">Profile</span>';
-    private const ICON_TIME = '<span class="glyphicon glyphicon-time"></span>';
     private const DIV_WELL = '<div style="padding:10px;">';
 
     public function __construct(
@@ -92,7 +90,7 @@ final class HaloRenderer implements RenderInterface
         return $disableHalo;
     }
 
-    private function addJsDevTools($body): string
+    private function addJsDevTools(string $body): string
     {
         if (strpos($body, '<head>') === false) {
             return $body;
@@ -124,16 +122,16 @@ EOT;
         string $templateFile,
         string $body
     ): string {
-        $resourceName = ($ro->uri ? : get_class($ro));
+        $resourceName = ($ro->uri ? : get_class($ro)); // @phpstan-ignore-line
         // code editor
         $ref = new ReflectionObject($ro);
-        $codeFile = $ro instanceof WeavedInterface ? $ref->getParentClass()->getFileName() : $ref->getFileName();
+        $codeFile = $ro instanceof WeavedInterface && $ref->getParentClass() ? $ref->getParentClass()->getFileName() : $ref->getFileName();
 //        $codeFile = $this->makeRelativePath($codeFile);
         $var = $this->getStatus($ro->body);
         $resourceKey = spl_object_hash($ro);
-        $escapedBody = preg_replace('/<!-- BEAR\.Sunday dev tool load -->.*BEAR\.Sunday dev tool load -->/', '', $body);
+        $escapedBody = (string) preg_replace('/<!-- BEAR\.Sunday dev tool load -->.*BEAR\.Sunday dev tool load -->/', '', $body);
 
-        $resourceBody = preg_replace_callback(
+        $resourceBody = (string) preg_replace_callback(
             '/<!-- resource(.*?)resource_tab_end -->/s',
             static function ($matches) {
                 $uri = substr(explode(' ', $matches[1])[0], 1);
@@ -203,11 +201,10 @@ EOT;
     private function getStatus(mixed $body): string
     {
         if (is_scalar($body)) {
-            return $body;
+            return (string) $body;
         }
 
-        $isTraversable = (is_array($body) || $body instanceof Traversable);
-        if (! $isTraversable) {
+        if (! is_array($body)) {
             return '-';
         }
 
@@ -227,7 +224,6 @@ EOT;
                 }
 
                 $value = '(object) ' . get_class($value);
-                assert(is_object($value));
             }
         );
 
@@ -252,8 +248,9 @@ EOT;
 
         $result .= '<ul class="unstyled">';
         $interceptors = json_decode($ro->headers[DevInvoker::HEADER_INTERCEPTORS], true);
+        assert(is_array($interceptors));
         unset($ro->headers[DevInvoker::HEADER_INTERCEPTORS]);
-        $onGetInterceptors = $interceptors['onGet'] ?? [];
+        $onGetInterceptors = $interceptors['onGet'] ?: [];
         foreach ($onGetInterceptors as $interceptor) {
             $interceptorFile = (new ReflectionClass($interceptor))->getFileName();
             $result .= <<<EOT

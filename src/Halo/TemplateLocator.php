@@ -18,6 +18,9 @@ use function substr;
 
 final class TemplateLocator
 {
+    /**
+     * @param array<string> $qiqPaths
+     */
     public function __construct(
         private AbstractAppMeta $meta,
         #[Named('qiq_paths')] private array $qiqPaths = [],
