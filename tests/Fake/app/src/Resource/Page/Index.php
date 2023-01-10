@@ -8,6 +8,11 @@ use BEAR\Resource\ResourceObject;
 
 class Index extends ResourceObject
 {
+    public $code = 301;
+    public $headers = [
+        'Location' => '/halo'
+    ];
+
     public function onGet()
     {
         $this->body = ['method' => __FUNCTION__];
