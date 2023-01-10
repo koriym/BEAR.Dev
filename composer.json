@@ -24,7 +24,7 @@
         "bear/package": "^1.10",
         "bear/qiq-module": "^1.0",
         "madapaja/twig-module": "^2.4",
-        "phpunit/phpunit": "^9.5",
+        "phpunit/phpunit": "^9.5.27",
         "ray/aura-sql-module": "^1.10"
     },
     "autoload": {
