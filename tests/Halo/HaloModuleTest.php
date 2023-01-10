@@ -22,5 +22,7 @@ class HaloModuleTest extends TestCase
     {
         $ro = $this->resource->get('page://self/');
         $view = (string) $ro;
+        $this->assertStringContainsString('<!-- resource:page://self/index -->', $view);
+        $this->assertStringContainsString('<!-- resource_tab_end -->', $view);
     }
 }
