@@ -267,17 +267,11 @@ EOT;
     {
         // memory, time
         $result = self::BADGE_PROFILE . self::DIV_WELL;
-        if (isset($ro->headers[DevInvoker::HEADER_EXECUTION_TIME])) {
-            $time = number_format((float) $ro->headers[DevInvoker::HEADER_EXECUTION_TIME], 3);
-        } else {
-            $time = 0;
-        }
+        $time = isset($ro->headers[DevInvoker::HEADER_EXECUTION_TIME]) ?
+            number_format((float) $ro->headers[DevInvoker::HEADER_EXECUTION_TIME], 3) : 0;
 
-        if (isset($ro->headers[DevInvoker::HEADER_MEMORY_USAGE])) {
-            $memory = number_format((float) $ro->headers[DevInvoker::HEADER_MEMORY_USAGE]);
-        } else {
-            $memory = 0;
-        }
+        $memory = isset($ro->headers[DevInvoker::HEADER_MEMORY_USAGE]) ?
+            number_format((float) $ro->headers[DevInvoker::HEADER_MEMORY_USAGE]) : 0;
 
         $result .= <<<EOT
 <span class="icon-time"></span> {$time} sec <span class="icon-signal"></span> {$memory} bytes
