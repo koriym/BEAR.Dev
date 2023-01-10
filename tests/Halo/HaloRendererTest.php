@@ -16,7 +16,7 @@ class HaloRendererTest extends TestCase
     {
         $originalRenderer = new class implements RenderInterface
         {
-            public function render(ResourceObject $ro)
+            public function render(ResourceObject $ro): string
             {
                 return '<html>
     <head>
