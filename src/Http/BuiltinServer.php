@@ -67,13 +67,12 @@ final class BuiltinServer
         });
     }
 
+    /** @codeCoverageIgnore */
     public function stop(): void
     {
-        // @codeCoverageIgnoreStart
         $exitCode = $this->process->stop();
         if ($exitCode !== 143) {
             throw new RuntimeException(sprintf('code:%s msg:%s', (string) $exitCode, $this->process->getErrorOutput()));
         }
-        // @codeCoverageIgnoreEnd
     }
 }
