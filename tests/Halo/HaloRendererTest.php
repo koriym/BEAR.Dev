@@ -6,9 +6,13 @@ namespace BEAR\Dev\Halo;
 
 use BEAR\AppMeta\Meta;
 use BEAR\Dev\FakeHalo;
+use BEAR\Resource\NullRenderer;
 use BEAR\Resource\RenderInterface;
 use BEAR\Resource\ResourceObject;
 use PHPUnit\Framework\TestCase;
+use Ray\Aop\NullInterceptor;
+use Ray\Di\AbstractModule;
+use Ray\Di\Injector;
 
 class HaloRendererTest extends TestCase
 {
@@ -27,7 +31,18 @@ class HaloRendererTest extends TestCase
             }
         };
         $renderer = new HaloRenderer($originalRenderer, new TemplateLocator(new Meta('MyVendor\MyProject')));
-        $ro = new FakeHalo();
+        $ro = (new Injector(new class extends AbstractModule{
+            protected function configure(): void
+            {
+                $this->bindInterceptor(
+                    $this->matcher->any(),
+                    $this->matcher->any(),
+                    [NullInterceptor::class]
+                );
+                $this->bind(FakeHalo::class);
+                $this->bind(RenderInterface::class)->to(NullRenderer::class);
+            }
+        }))->getInstance(FakeHalo::class);
         $view = $renderer->render($ro);
         $this->assertStringStartsWith('<html>', $view);
         $this->assertStringContainsString('<body><!-- resource:', $view);

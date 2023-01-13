@@ -18,11 +18,23 @@ class HaloModuleTest extends TestCase
         $this->resource = $injector->getInstance(ResourceInterface::class);
     }
 
-    public function testModule(): void
+    /** @return array<array<string>> */
+    public function pageProvider(): array
     {
-        $ro = $this->resource->get('page://self/');
+        return [
+            ['page://self/'],
+            ['page://self/aop'],
+        ];
+    }
+
+    /**
+     * @dataProvider pageProvider
+     */
+    public function testModule(string $uri): void
+    {
+        $ro = $this->resource->get($uri);
         $view = (string) $ro;
-        $this->assertStringContainsString('<!-- resource:page://self/index -->', $view);
+        $this->assertStringContainsString('<!-- resource:page://self/', $view);
         $this->assertStringContainsString('<!-- resource_tab_end -->', $view);
     }
 }
