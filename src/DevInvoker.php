@@ -11,12 +11,21 @@ use BEAR\Resource\ResourceObject;
 use Ray\Aop\MethodInterceptor;
 use Ray\Aop\WeavedInterface;
 use Ray\Di\Di\Named;
+use XHProfRuns_Default;
 
 use function assert;
+use function extension_loaded;
 use function get_class;
 use function json_encode;
 use function memory_get_usage;
 use function microtime;
+use function sys_get_temp_dir;
+use function xhprof_disable;
+use function xhprof_enable;
+
+use const XHPROF_FLAGS_CPU;
+use const XHPROF_FLAGS_MEMORY;
+use const XHPROF_FLAGS_NO_BUILTINS;
 
 final class DevInvoker implements InvokerInterface
 {
@@ -51,6 +60,10 @@ final class DevInvoker implements InvokerInterface
 
     private function devInvoke(ResourceObject $resource, AbstractRequest $request): ResourceObject
     {
+        if (extension_loaded('xhprof')) {
+            xhprof_enable(XHPROF_FLAGS_NO_BUILTINS | XHPROF_FLAGS_CPU | XHPROF_FLAGS_MEMORY);
+        }
+
         $resource->headers[self::HEADER_QUERY] = (string) json_encode($request->query);
         $time = microtime(true);
         $memory = memory_get_usage();
@@ -60,6 +73,11 @@ final class DevInvoker implements InvokerInterface
         // post process for log
         $resource->headers[self::HEADER_EXECUTION_TIME] = (string) (microtime(true) - $time);
         $resource->headers[self::HEADER_MEMORY_USAGE] = (string) (memory_get_usage() - $memory);
+        if (extension_loaded('xhprof')) {
+            $xhprof = xhprof_disable();
+            $profileId = (new XHProfRuns_Default(sys_get_temp_dir()))->save_run($xhprof, 'resource');
+            $resource->headers[self::HEADER_PROFILE_ID] = $profileId;
+        }
 
         return $result;
     }

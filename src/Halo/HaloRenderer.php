@@ -108,7 +108,7 @@ final class HaloRenderer implements RenderInterface
 <!-- /BEAR.Sunday dev tools -->
 EOT;
 
-        return str_replace('<head>', "<head>\n{$toolLoad}", $body);
+        return str_replace('</head>', "\n{$toolLoad}</head>", $body);
     }
 
     private function addHalo(string $body, ResourceObject $ro, string $templateFile): string
@@ -246,7 +246,6 @@ EOT;
             return $result . 'n/a</div>';
         }
 
-        $result .= '<ul class="unstyled">';
         $interceptors = json_decode($ro->headers[DevInvoker::HEADER_INTERCEPTORS], true);
         assert(is_array($interceptors));
         unset($ro->headers[DevInvoker::HEADER_INTERCEPTORS]);
@@ -254,11 +253,11 @@ EOT;
         foreach ($onGetInterceptors as $interceptor) {
             $interceptorFile = (new ReflectionClass($interceptor))->getFileName();
             $result .= <<<EOT
-<li style="height: 26px;"><a target="_blank" href="phpstorm://open?file={$interceptorFile}">{$interceptor}</a></li>
+<li><a href="phpstorm://open?file={$interceptorFile}">{$interceptor}</a>
 EOT;
         }
 
-        $result .= '</ul></div>';
+        $result .= '</div>';
 
         return $result;
     }
@@ -266,26 +265,27 @@ EOT;
     private function getProfileInfo(ResourceObject $ro): string
     {
         // memory, time
-        $result = self::BADGE_PROFILE . self::DIV_WELL;
+        $html = self::BADGE_PROFILE . self::DIV_WELL;
         $time = isset($ro->headers[DevInvoker::HEADER_EXECUTION_TIME]) ?
             number_format((float) $ro->headers[DevInvoker::HEADER_EXECUTION_TIME], 3) : 0;
 
         $memory = isset($ro->headers[DevInvoker::HEADER_MEMORY_USAGE]) ?
             number_format((float) $ro->headers[DevInvoker::HEADER_MEMORY_USAGE]) : 0;
 
-        $result .= <<<EOT
-<span class="icon-time"></span> {$time} sec <span class="icon-signal"></span> {$memory} bytes
+        $html .= <<<EOT
+    <li><span class="glyphicon glyphicon-time"></span>  {$time} sec
+    <li><span class="glyphicon glyphicon-signal"></span> {$memory} bytes
 EOT;
         // profile id
         if (isset($ro->headers[DevInvoker::HEADER_PROFILE_ID])) {
             $profileId = $ro->headers[DevInvoker::HEADER_PROFILE_ID];
-            $result .= <<<EOT
-<span class="icon-random"></span><a href="/xhprof_html/index.php?run={$profileId}&source=resource"> {$profileId}</a>
+            $html .= <<<EOT
+    <li><span title="XHProf">XH</span> <a href="/xhprof_html/index.php?run={$profileId}&source=resource">{$profileId}</a>
 EOT;
         }
 
-        $result .= '</div>';
+        $html .= '</ul>';
 
-        return $result;
+        return $html . '</div>';
     }
 }
