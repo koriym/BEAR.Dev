@@ -19,6 +19,7 @@ use function get_class;
 use function json_encode;
 use function memory_get_usage;
 use function microtime;
+use function property_exists;
 use function sys_get_temp_dir;
 use function xhprof_disable;
 use function xhprof_enable;
@@ -88,11 +89,10 @@ final class DevInvoker implements InvokerInterface
             return $request->resourceObject;
         }
 
-        assert(isset($request->resourceObject->bindings));
+        assert(property_exists($request->resourceObject, 'bindings'));
         $bind = $request->resourceObject->bindings;
         $interceptors = $this->getBindInfo($bind);
         $request->resourceObject->headers[self::HEADER_INTERCEPTORS] = (string) json_encode($interceptors);
-//        $ro->headers[self::HEADER_INTERCEPTORS] = json_encode($interceptors);
 
         return $request->resourceObject;
     }
