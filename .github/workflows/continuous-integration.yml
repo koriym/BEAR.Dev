@@ -47,6 +47,4 @@ jobs:
         run: php -d xdebug.mode=coverage ./vendor/bin/phpunit --coverage-clover=coverage.xml
 
       - name: Upload coverage report
-        uses: codecov/codecov-action@v2
-        with:
-          fail_ci_if_error: false
+        uses: codecov/codecov-action@v3
