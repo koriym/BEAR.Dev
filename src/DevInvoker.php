@@ -90,6 +90,7 @@ final class DevInvoker implements InvokerInterface
         }
 
         assert(property_exists($request->resourceObject, 'bindings'));
+        /** @psalm-suppress UndefinedPropertyFetch */
         $bind = $request->resourceObject->bindings;
         $interceptors = $this->getBindInfo($bind);
         $request->resourceObject->headers[self::HEADER_INTERCEPTORS] = (string) json_encode($interceptors);
