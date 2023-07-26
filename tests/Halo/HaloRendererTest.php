@@ -43,6 +43,7 @@ class HaloRendererTest extends TestCase
                 $this->bind(RenderInterface::class)->to(NullRenderer::class);
             }
         }))->getInstance(FakeHalo::class);
+        $ro->uri = 'page://self/dummy';
         $view = $renderer->render($ro);
         $this->assertStringStartsWith('<html>', $view);
         $this->assertStringContainsString('<body><!-- resource:', $view);
