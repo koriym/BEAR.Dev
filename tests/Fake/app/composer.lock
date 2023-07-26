@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "22b55c45fb71c0cd7eb0648465319519",
+    "content-hash": "2c0c0c3b26e254901da3ab6f06b31828",
     "packages": [
         {
             "name": "aura/cli",
@@ -4555,6 +4555,52 @@
                 }
             ],
             "time": "2023-04-17T16:00:37+00:00"
+        },
+        {
+            "name": "koriym/php-server",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/koriym/Koriym.PhpServer.git",
+                "reference": "1a7bafd173ca6ccd6815ad4e7487e4bd5b6a21e1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/koriym/Koriym.PhpServer/zipball/1a7bafd173ca6ccd6815ad4e7487e4bd5b6a21e1",
+                "reference": "1a7bafd173ca6ccd6815ad4e7487e4bd5b6a21e1",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0",
+                "symfony/process": "^5.4"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8",
+                "ext-curl": "*",
+                "phpunit/phpunit": "^9.5",
+                "psalm/plugin-phpunit": "^0.18.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Koriym\\PhpServer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Akihito Koriyama",
+                    "email": "akihito.koriyama@gmail.com"
+                }
+            ],
+            "support": {
+                "issues": "https://github.com/koriym/Koriym.PhpServer/issues",
+                "source": "https://github.com/koriym/Koriym.PhpServer/tree/1.0.0"
+            },
+            "time": "2023-07-26T03:11:19+00:00"
         },
         {
             "name": "myclabs/deep-copy",

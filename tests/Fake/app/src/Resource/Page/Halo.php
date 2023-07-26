@@ -6,6 +6,7 @@ namespace MyVendor\MyProject\Resource\Page;
 
 use BEAR\Resource\Annotation\Embed;
 use BEAR\Resource\ResourceObject;
+
 class Halo extends ResourceObject
 {
     public $body = [
