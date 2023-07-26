@@ -65,6 +65,7 @@
             "@metrics"
         ],
         "serve": "php -dzend_extension=xdebug.so -S 127.0.0.1:8081 -t public",
+        "halo": "php -dzend_extension=xdebug.so -S 127.0.0.1:8081 -t public-twig",
         "app": "php bin/app.php",
         "page": "php bin/page.php",
         "bin": "echo installing"
