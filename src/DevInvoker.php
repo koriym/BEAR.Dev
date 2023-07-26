@@ -62,6 +62,7 @@ final class DevInvoker implements InvokerInterface
     private function devInvoke(ResourceObject $resource, AbstractRequest $request): ResourceObject
     {
         if (extension_loaded('xhprof')) {
+            /** @psalm-suppress UndefinedConstant */
             xhprof_enable(XHPROF_FLAGS_NO_BUILTINS | XHPROF_FLAGS_CPU | XHPROF_FLAGS_MEMORY);
         }
 

@@ -122,7 +122,7 @@ EOT;
         string $templateFile,
         string $body
     ): string {
-        $resourceName = ($ro->uri ? : get_class($ro)); // @phpstan-ignore-line
+        $resourceName = $ro->uri;
         // code editor
         $ref = new ReflectionObject($ro);
         $codeFile = $ro instanceof WeavedInterface && $ref->getParentClass() ? $ref->getParentClass()->getFileName() : $ref->getFileName();
@@ -210,7 +210,7 @@ EOT;
 
         array_walk_recursive(
             $body,
-            static function (&$value): void {
+            static function (mixed &$value): void {
                 if ($value instanceof Request) {
                     $value = '[' . $value->toUri() . ']';
                 }
