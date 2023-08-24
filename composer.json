@@ -15,7 +15,6 @@
         "bear/app-meta": "^1.8",
         "bear/resource": "^1.17",
         "koriym/php-server": "^1.0",
-        "longxinh/xhprof": "^2.3",
         "psr/log": "^1 || ^2 || ^3",
         "ray/aop": "^2.13",
         "ray/di": "^2.14"
