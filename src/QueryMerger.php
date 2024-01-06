@@ -13,13 +13,14 @@ use const PHP_URL_QUERY;
 final class QueryMerger
 {
     /**
-     * @param array<mixed> $query
+     * @param array<string, mixed> $query
      */
     public function __invoke(string $uri, array $query): Uri
     {
         $path = (string) parse_url($uri, PHP_URL_PATH);
         $uriQueryString = (string) parse_url($uri, PHP_URL_QUERY);
         parse_str($uriQueryString, $uriQuery);
+        /** @var array<string, mixed> $uriQuery */
         $mergedQuery = $uriQuery + $query;
 
         return new Uri($path, $mergedQuery);

@@ -181,7 +181,7 @@ final class HttpResource implements ResourceInterface
     }
 
     /**
-     * @param array<mixed> $query
+     * @param array<string, mixed> $query
      */
     private function safeRequest(string $path, array $query): ResourceObject
     {

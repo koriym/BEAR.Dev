@@ -19,9 +19,9 @@ class QueryMergerTest extends TestCase
 
     public function testSimplest(): void
     {
-        $uri = ($this->queryMerger)('http://example.com/', ['id' => '1']);
+        $uri = ($this->queryMerger)('http://example.com/', ['id' => 1]);
         $this->assertSame('/', $uri->path);
-        $this->assertSame(['id' => '1'], $uri->query);
+        $this->assertSame(['id' => 1], $uri->query);
     }
 
     public function testUriHasQuery(): void
