@@ -20,8 +20,12 @@ final class QueryMerger
         $path = (string) parse_url($uri, PHP_URL_PATH);
         $uriQueryString = (string) parse_url($uri, PHP_URL_QUERY);
         parse_str($uriQueryString, $uriQuery);
-        /** @var array<string, mixed> $uriQuery */
-        $mergedQuery = $uriQuery + $query;
+        $uriQueryKeyString = [];
+        foreach ($uriQuery as $key => $value) {
+            $uriQueryKeyString[(string) $key] = $value;
+        }
+
+        $mergedQuery = $uriQueryKeyString + $query;
 
         return new Uri($path, $mergedQuery);
     }
