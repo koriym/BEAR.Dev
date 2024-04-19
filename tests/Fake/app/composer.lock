@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "1e59ad23ccc598c79890d279b97c9372",
+    "content-hash": "2c0c0c3b26e254901da3ab6f06b31828",
     "packages": [
         {
             "name": "aura/cli",
@@ -1489,6 +1489,70 @@
             "time": "2023-10-10T08:35:13+00:00"
         },
         {
+            "name": "madapaja/twig-module",
+            "version": "2.5.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/madapaja/Madapaja.TwigModule.git",
+                "reference": "36c480927c4b36a9ca5682c285f473e382b7acb3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/madapaja/Madapaja.TwigModule/zipball/36c480927c4b36a9ca5682c285f473e382b7acb3",
+                "reference": "36c480927c4b36a9ca5682c285f473e382b7acb3",
+                "shasum": ""
+            },
+            "require": {
+                "bear/app-meta": "^1.8",
+                "bear/resource": "^1.20",
+                "bear/sunday": "^1.2",
+                "mobiledetect/mobiledetectlib": "^2.7 || ^3.74",
+                "php": "^8.0",
+                "psr/log": "^3.0",
+                "ray/aop": "^2.13",
+                "ray/di": "^2.7",
+                "twig/twig": "^2.15.3 || ^v3.4.3"
+            },
+            "require-dev": {
+                "doctrine/annotations": "^1.13.3 || ^2.0",
+                "doctrine/coding-standard": "^12.0",
+                "phpmd/phpmd": "^2.6",
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^9.5.21",
+                "ray/rector-ray": "^1.0",
+                "rector/rector": "^0.15.3",
+                "squizlabs/php_codesniffer": "^3.7",
+                "vimeo/psalm": "^5.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Madapaja\\TwigModule\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Koji Iwasaki",
+                    "email": "iwasaki@cresc.com"
+                }
+            ],
+            "description": "BEAR.Sunday Twig adapter module",
+            "keywords": [
+                "BEAR.Sunday",
+                "BEAR.Sunday module",
+                "twig"
+            ],
+            "support": {
+                "issues": "https://github.com/madapaja/Madapaja.TwigModule/issues",
+                "source": "https://github.com/madapaja/Madapaja.TwigModule/tree/2.5.0"
+            },
+            "time": "2023-09-03T14:43:28+00:00"
+        },
+        {
             "name": "mobiledetect/mobiledetectlib",
             "version": "3.74.3",
             "source": {
@@ -2216,16 +2280,16 @@
         },
         {
             "name": "psr/log",
-            "version": "2.0.0",
+            "version": "3.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "ef29f6d262798707a9edd554e2b82517ef3a9376"
+                "reference": "fe5ea303b0887d5caefd3d431c3e61ad47037001"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/ef29f6d262798707a9edd554e2b82517ef3a9376",
-                "reference": "ef29f6d262798707a9edd554e2b82517ef3a9376",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/fe5ea303b0887d5caefd3d431c3e61ad47037001",
+                "reference": "fe5ea303b0887d5caefd3d431c3e61ad47037001",
                 "shasum": ""
             },
             "require": {
@@ -2234,7 +2298,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.0.x-dev"
+                    "dev-master": "3.x-dev"
                 }
             },
             "autoload": {
@@ -2260,9 +2324,9 @@
                 "psr-3"
             ],
             "support": {
-                "source": "https://github.com/php-fig/log/tree/2.0.0"
+                "source": "https://github.com/php-fig/log/tree/3.0.0"
             },
-            "time": "2021-07-14T16:41:46+00:00"
+            "time": "2021-07-14T16:46:02+00:00"
         },
         {
             "name": "psr/simple-cache",
@@ -3754,6 +3818,85 @@
             "time": "2024-03-20T21:07:14+00:00"
         },
         {
+            "name": "twig/twig",
+            "version": "v3.9.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/twigphp/Twig.git",
+                "reference": "a842d75fed59cdbcbd3a3ad7fb9eb768fc350d58"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/a842d75fed59cdbcbd3a3ad7fb9eb768fc350d58",
+                "reference": "a842d75fed59cdbcbd3a3ad7fb9eb768fc350d58",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.2.5",
+                "symfony/deprecation-contracts": "^2.5|^3",
+                "symfony/polyfill-ctype": "^1.8",
+                "symfony/polyfill-mbstring": "^1.3",
+                "symfony/polyfill-php80": "^1.22"
+            },
+            "require-dev": {
+                "psr/container": "^1.0|^2.0",
+                "symfony/phpunit-bridge": "^5.4.9|^6.4|^7.0"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "src/Resources/core.php",
+                    "src/Resources/debug.php",
+                    "src/Resources/escaper.php",
+                    "src/Resources/string_loader.php"
+                ],
+                "psr-4": {
+                    "Twig\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com",
+                    "homepage": "http://fabien.potencier.org",
+                    "role": "Lead Developer"
+                },
+                {
+                    "name": "Twig Team",
+                    "role": "Contributors"
+                },
+                {
+                    "name": "Armin Ronacher",
+                    "email": "armin.ronacher@active-4.com",
+                    "role": "Project Founder"
+                }
+            ],
+            "description": "Twig, the flexible, fast, and secure template language for PHP",
+            "homepage": "https://twig.symfony.com",
+            "keywords": [
+                "templating"
+            ],
+            "support": {
+                "issues": "https://github.com/twigphp/Twig/issues",
+                "source": "https://github.com/twigphp/Twig/tree/v3.9.3"
+            },
+            "funding": [
+                {
+                    "url": "https://github.com/fabpot",
+                    "type": "github"
+                },
+                {
+                    "url": "https://tidelift.com/funding/github/packagist/twig/twig",
+                    "type": "tidelift"
+                }
+            ],
+            "time": "2024-04-18T11:59:33+00:00"
+        },
+        {
             "name": "vlucas/phpdotenv",
             "version": "v5.6.0",
             "source": {
@@ -3898,63 +4041,6 @@
     ],
     "packages-dev": [
         {
-            "name": "aura/sql",
-            "version": "3.1.0",
-            "source": {
-                "type": "git",
-                "url": "https://github.com/auraphp/Aura.Sql.git",
-                "reference": "88d8b8ed1bcfd588a649fdc7e7ac89ec047abbca"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/auraphp/Aura.Sql/zipball/88d8b8ed1bcfd588a649fdc7e7ac89ec047abbca",
-                "reference": "88d8b8ed1bcfd588a649fdc7e7ac89ec047abbca",
-                "shasum": ""
-            },
-            "require": {
-                "php": ">=5.6.0",
-                "psr/log": "^1.0 || ^2.0"
-            },
-            "require-dev": {
-                "pds/skeleton": "~1.0",
-                "yoast/phpunit-polyfills": "~1.0"
-            },
-            "type": "library",
-            "autoload": {
-                "psr-4": {
-                    "Aura\\Sql\\": "src/"
-                }
-            },
-            "notification-url": "https://packagist.org/downloads/",
-            "license": [
-                "MIT"
-            ],
-            "authors": [
-                {
-                    "name": "Aura.Sql Contributors",
-                    "homepage": "https://github.com/auraphp/Aura.Sql/contributors"
-                }
-            ],
-            "description": "A PDO extension that provides lazy connections, array quoting, query profiling, value binding, and convenience methods for common fetch styles. Because it extends PDO, existing code that uses PDO can use this without any changes to the existing code.",
-            "homepage": "https://github.com/auraphp/Aura.Sql",
-            "keywords": [
-                "mysql",
-                "pdo",
-                "pgsql",
-                "postgres",
-                "postgresql",
-                "sql server",
-                "sqlite",
-                "sqlserver",
-                "sqlsrv"
-            ],
-            "support": {
-                "issues": "https://github.com/auraphp/Aura.Sql/issues",
-                "source": "https://github.com/auraphp/Aura.Sql/tree/3.1.0"
-            },
-            "time": "2022-04-28T05:11:23+00:00"
-        },
-        {
             "name": "bamarni/composer-bin-plugin",
             "version": "1.8.2",
             "source": {
@@ -4013,38 +4099,32 @@
         },
         {
             "name": "bear/devtools",
-            "version": "0.1.4",
+            "version": "0.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/bearsunday/BEAR.DevTools.git",
-                "reference": "0a03028b42730429d6d2106d08ffaf1e330e66c0"
+                "reference": "170c91c332f72f4ff68428a0fb3964d434f87ecc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/bearsunday/BEAR.DevTools/zipball/0a03028b42730429d6d2106d08ffaf1e330e66c0",
-                "reference": "0a03028b42730429d6d2106d08ffaf1e330e66c0",
+                "url": "https://api.github.com/repos/bearsunday/BEAR.DevTools/zipball/170c91c332f72f4ff68428a0fb3964d434f87ecc",
+                "reference": "170c91c332f72f4ff68428a0fb3964d434f87ecc",
                 "shasum": ""
             },
             "require": {
-                "aura/sql": "^3.0",
-                "ext-json": "*",
-                "guzzlehttp/guzzle": "^6.5.5",
-                "php": "^7.3 || ^8.0",
-                "symfony/process": "^5.2.7"
+                "guzzlehttp/guzzle": "^6.5",
+                "php": ">=7.2.0",
+                "symfony/process": "^5.0"
             },
             "require-dev": {
-                "bamarni/composer-bin-plugin": "^1.4",
-                "bear/package": "^1.10",
-                "phpunit/phpunit": "^9.5",
-                "ray/aura-sql-module": "^1.10"
+                "bear/package": "^1.9",
+                "phpunit/phpunit": "^8.0",
+                "ray/aura-sql-module": "^1.7"
             },
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "BEAR\\Dev\\": [
-                        "src/",
-                        "src-deprecated/"
-                    ]
+                    "BEAR\\Dev\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -4059,9 +4139,9 @@
             ],
             "support": {
                 "issues": "https://github.com/bearsunday/BEAR.DevTools/issues",
-                "source": "https://github.com/bearsunday/BEAR.DevTools/tree/0.1.4"
+                "source": "https://github.com/bearsunday/BEAR.DevTools/tree/0.1.2"
             },
-            "time": "2021-05-10T15:53:40+00:00"
+            "time": "2020-08-28T07:30:24+00:00"
         },
         {
             "name": "doctrine/instantiator",
@@ -4431,6 +4511,52 @@
                 }
             ],
             "time": "2023-04-17T16:00:37+00:00"
+        },
+        {
+            "name": "koriym/php-server",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/koriym/Koriym.PhpServer.git",
+                "reference": "1a7bafd173ca6ccd6815ad4e7487e4bd5b6a21e1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/koriym/Koriym.PhpServer/zipball/1a7bafd173ca6ccd6815ad4e7487e4bd5b6a21e1",
+                "reference": "1a7bafd173ca6ccd6815ad4e7487e4bd5b6a21e1",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0",
+                "symfony/process": "^5.4"
+            },
+            "require-dev": {
+                "bamarni/composer-bin-plugin": "^1.8",
+                "ext-curl": "*",
+                "phpunit/phpunit": "^9.5",
+                "psalm/plugin-phpunit": "^0.18.4"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Koriym\\PhpServer\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Akihito Koriyama",
+                    "email": "akihito.koriyama@gmail.com"
+                }
+            ],
+            "support": {
+                "issues": "https://github.com/koriym/Koriym.PhpServer/issues",
+                "source": "https://github.com/koriym/Koriym.PhpServer/tree/1.0.0"
+            },
+            "time": "2023-07-26T03:11:19+00:00"
         },
         {
             "name": "myclabs/deep-copy",
@@ -5134,12 +5260,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/Roave/SecurityAdvisories.git",
-                "reference": "16afe68c1b79917b4e8d8222a39ca4db31b63377"
+                "reference": "a6fb2a760c95f45ccb6a412599770061c330c624"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/16afe68c1b79917b4e8d8222a39ca4db31b63377",
-                "reference": "16afe68c1b79917b4e8d8222a39ca4db31b63377",
+                "url": "https://api.github.com/repos/Roave/SecurityAdvisories/zipball/a6fb2a760c95f45ccb6a412599770061c330c624",
+                "reference": "a6fb2a760c95f45ccb6a412599770061c330c624",
                 "shasum": ""
             },
             "conflict": {
@@ -5711,7 +5837,7 @@
                 "t3s/content-consent": "<1.0.3|>=2,<2.0.2",
                 "tastyigniter/tastyigniter": "<3.3",
                 "tcg/voyager": "<=1.4",
-                "tecnickcom/tcpdf": "<6.7.4",
+                "tecnickcom/tcpdf": "<=6.7.4",
                 "terminal42/contao-tablelookupwizard": "<3.3.5",
                 "thelia/backoffice-default-template": ">=2.1,<2.1.2",
                 "thelia/thelia": ">=2.1,<2.1.3",
@@ -5874,7 +6000,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-04-18T17:04:22+00:00"
+            "time": "2024-04-19T20:04:33+00:00"
         },
         {
             "name": "sebastian/cli-parser",
