@@ -15,6 +15,7 @@
         "bear/app-meta": "^1.8",
         "bear/resource": "^1.17",
         "koriym/php-server": "^1.0",
+        "xhprof/xhprof": "^2.3",
         "psr/log": "^1 || ^2 || ^3",
         "ray/aop": "^2.14",
         "ray/di": "^2.14",
@@ -67,7 +68,7 @@
         {
             "type": "package",
             "package": {
-                "name": "longxinh/xhprof",
+                "name": "xhprof/xhprof",
                 "version": "2.3.9",
                 "dist": {
                     "url": "https://github.com/longxinH/xhprof/archive/refs/tags/v2.3.9.zip",
