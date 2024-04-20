@@ -77,7 +77,7 @@ final class DevInvoker implements InvokerInterface
         $resource->headers[self::HEADER_MEMORY_USAGE] = (string) (memory_get_usage() - $memory);
         if (extension_loaded('xhprof')) {
             $xhprof = xhprof_disable();
-            $profileId = (new XHProfRuns_Default(sys_get_temp_dir()))->save_run($xhprof, 'resource'); // @phpstan-ignore-line
+            $profileId = (new XHProfRuns_Default(sys_get_temp_dir()))->save_run($xhprof, 'resource');
             $resource->headers[self::HEADER_PROFILE_ID] = $profileId;
         }
 
