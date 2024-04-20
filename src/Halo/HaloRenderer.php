@@ -62,7 +62,7 @@ final class HaloRenderer implements RenderInterface
      */
     public function render(ResourceObject $ro)
     {
-        if ($this->isDisableHalo()) {
+        if (! $this->isEableHalo()) {
             return $this->renderer->render($ro);
         }
 
@@ -75,19 +75,21 @@ final class HaloRenderer implements RenderInterface
         return $haloView;
     }
 
-    private function isDisableHalo(): bool
+    private function isEableHalo(): bool
     {
-        $disableHalo = (isset($_GET[self::HALO_KEY]) && $_GET[self::HALO_KEY] === '0') || isset($_COOKIE[self::HALO_COOKIE_KEY]);
-        if (! empty($_GET[self::HALO_KEY]) && $_GET[self::HALO_KEY] === '1') {
-            $disableHalo = false;
-            setcookie(self::HALO_COOKIE_KEY, '', time() - 3600);
+        if (! isset($_GET[self::HALO_KEY])) {
+            return isset($_COOKIE[self::HALO_COOKIE_KEY]);
         }
 
-        if ($disableHalo) {
-            setcookie(self::HALO_COOKIE_KEY, '0');
+        if ($_GET[self::HALO_KEY] === '1') {
+            setcookie(self::HALO_COOKIE_KEY, '1');
+
+            return true;
         }
 
-        return $disableHalo;
+        setcookie(self::HALO_COOKIE_KEY, '', time() - 3600); // delete cookies
+
+        return false;
     }
 
     private function addJsDevTools(string $body): string
