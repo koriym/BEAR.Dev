@@ -6,7 +6,6 @@ namespace MyVendor\MyProject;
 
 use BEAR\Package\Injector as PackageInjector;
 use Ray\Di\InjectorInterface;
-
 use function dirname;
 
 final class Injector
