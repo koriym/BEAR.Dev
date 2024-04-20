@@ -14,6 +14,7 @@ class HaloModuleTest extends TestCase
 
     protected function setUp(): void
     {
+        $_GET['halo'] = '1';
         $injector = Injector::getInstance('dev-app');
         $this->resource = $injector->getInstance(ResourceInterface::class);
     }

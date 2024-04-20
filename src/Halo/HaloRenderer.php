@@ -39,6 +39,7 @@ use const JSON_PRETTY_PRINT;
 use const JSON_UNESCAPED_SLASHES;
 use const JSON_UNESCAPED_UNICODE;
 use const PHP_EOL;
+use const PHP_SAPI;
 
 final class HaloRenderer implements RenderInterface
 {
@@ -63,7 +64,9 @@ final class HaloRenderer implements RenderInterface
     public function render(ResourceObject $ro)
     {
         if (! $this->isEableHalo()) {
-            return $this->renderer->render($ro);
+            $ro->view = $this->renderer->render($ro);
+
+            return $ro->view;
         }
 
         $originalView =  $this->renderer->render($ro);
@@ -82,7 +85,7 @@ final class HaloRenderer implements RenderInterface
         }
 
         if ($_GET[self::HALO_KEY] === '1') {
-            setcookie(self::HALO_COOKIE_KEY, '1');
+            $this->setHaloCookie();
 
             return true;
         }
@@ -289,5 +292,14 @@ EOT;
         $html .= '</ul>';
 
         return $html . '</div>';
+    }
+
+    public function setHaloCookie(): void
+    {
+        if (PHP_SAPI === 'cli') {
+            return;
+        }
+
+        setcookie(self::HALO_COOKIE_KEY, '1');
     }
 }
