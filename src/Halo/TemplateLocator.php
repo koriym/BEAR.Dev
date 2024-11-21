@@ -28,7 +28,7 @@ final class TemplateLocator
      */
     public function __construct(
         private AbstractAppMeta $meta,
-        #[TwigPaths('twigPaths')] private array $twigPaths = [],
+        #[TwigPaths] private array $twigPaths = [],
         #[Named('qiq_paths')] private array $qiqPaths = [],
         #[Named('qiq_extension')] private string $qiqExt = '',
     ) {
