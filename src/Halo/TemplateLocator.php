@@ -20,8 +20,6 @@ use function substr;
 
 final class TemplateLocator
 {
-//    private array $twigPaths;
-
     /**
      * @param array<string> $twigPaths
      * @param array<string> $qiqPaths
