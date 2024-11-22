@@ -8,6 +8,7 @@ use BEAR\Dev\DevInvoker;
 use BEAR\Resource\RenderInterface;
 use BEAR\Resource\Request;
 use BEAR\Resource\ResourceObject;
+use LogicException;
 use Ray\Aop\WeavedInterface;
 use Ray\Di\Di\Named;
 use ReflectionClass;
@@ -138,11 +139,15 @@ EOT;
 
         $resourceBody = (string) preg_replace_callback(
             '/<!-- resource(.*?)resource_tab_end -->/s',
-            static function ($matches) {
+            /** @param array<int|string, string> $matches */
+            static function ($matches): string {
                 $uri = substr(explode(' ', $matches[1])[0], 1);
                 preg_match('/ <!-- resource_body_start -->(.*?)<!-- resource_body_end -->/s', $matches[1], $resourceBodyMatch);
+                if (! isset($resourceBodyMatch[1])) {
+                    throw new LogicException('Resource body not found'); // @codeCoverageIgnore
+                }
 
-                return "<!-- resource:$uri -->\n{$resourceBodyMatch[1]}<!-- /resource:$uri -->";
+                return ''; // not used but needed for the callback signature
             },
             $escapedBody
         );
