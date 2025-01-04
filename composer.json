@@ -23,7 +23,7 @@
     },
     "require-dev": {
         "bamarni/composer-bin-plugin": "^1.8",
-        "bear/package": "^1.10",
+        "bear/package": "dev-windows as 1.18",
         "madapaja/twig-module": "^2.5",
         "phpunit/phpunit": "^9.6",
         "ray/aura-sql-module": "^1.10"
