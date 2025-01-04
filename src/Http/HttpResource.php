@@ -29,6 +29,7 @@ use function proc_open;
 use function sprintf;
 use function trim;
 
+use function var_dump;
 use const FILE_APPEND;
 use const JSON_THROW_ON_ERROR;
 use const PHP_EOL;
@@ -256,7 +257,7 @@ final class HttpResource implements ResourceInterface
             // Windows対応のためexecを使用
             exec($curl, $output);
         }
-
+        var_dump($output);
         $uri = new ResourceUri($url);
         $uri->method = $method;
         $ro = ($this->createResponse)($uri, $output);
