@@ -71,7 +71,7 @@ final class CreateResponse
             return 500;
         }
 
-        if (preg_match('/HTTP\/\d\.\d\s+(\d{3})/', $status, $match)) {
+        if (preg_match('/^HTTP\/\d\.\d\s+(\d{3})/', $status, $match)) {
             return (int) $match[1];
         }
 
