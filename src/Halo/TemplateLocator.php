@@ -65,12 +65,12 @@ final class TemplateLocator
     private function getClass(ResourceObject $ro): string
     {
         if ($ro instanceof WeavedInterface) {
-            /** @var \ReflectionClass<ResourceObject> $parentClass */
             $parentClass = (new ReflectionClass($ro))->getParentClass();
 
-            return $parentClass->name;
+            // Convert for Windows support
+            return str_replace('\\', '/', $parentClass->name);
         }
 
-        return get_class($ro);
+        return str_replace('\\', '/', get_class($ro));
     }
 }
