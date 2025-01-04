@@ -13,6 +13,7 @@ use Koriym\PhpServer\PhpServer;
 use LogicException;
 use RuntimeException;
 
+use function escapeshellarg;
 use function exec;
 use function fclose;
 use function feof;
@@ -29,7 +30,6 @@ use function proc_open;
 use function sprintf;
 use function trim;
 
-use function var_dump;
 use const FILE_APPEND;
 use const JSON_THROW_ON_ERROR;
 use const PHP_EOL;
@@ -56,7 +56,6 @@ final class HttpResource implements ResourceInterface
         $this->baseUri = sprintf('http://%s', $host);
         $this->logFile = $logFile;
         $this->resetLog($logFile);
-
         $this->startServer($host, $index);
         $this->queryMerger = new QueryMerger();
         $this->createResponse = new CreateResponse();
@@ -66,9 +65,8 @@ final class HttpResource implements ResourceInterface
     {
         /** @var array<string> $started */
         static $started = [];
-
         $id = $host . $index;
-        if (in_array($id, $started)) {
+        if (in_array($id, $started, true)) {
             return;
         }
 
@@ -81,8 +79,7 @@ final class HttpResource implements ResourceInterface
     {
         /** @var array<string> $started */
         static $started = [];
-
-        if (in_array($logFile, $started) || ! file_exists($logFile)) {
+        if (in_array($logFile, $started, true) || ! file_exists($logFile)) {
             return;
         }
 
@@ -90,154 +87,68 @@ final class HttpResource implements ResourceInterface
         $started[] = $logFile;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @codeCoverageIgnore
-     */
-    public function newInstance($uri): ResourceObject
-    {
-        throw new LogicException();
-    }
-
-    /**
-     * @codeCoverageIgnore
-     */
-    public function object(ResourceObject $ro): RequestInterface
-    {
-        unset($ro);
-
-        throw new LogicException();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @codeCoverageIgnore
-     */
-    public function uri($uri): RequestInterface
-    {
-        throw new LogicException();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @codeCoverageIgnore
-     */
-    public function href(string $rel, array $query = []): ResourceObject
-    {
-        throw new LogicException();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function get(string $uri, array $query = []): ResourceObject
-    {
-        return $this->safeRequest($uri, $query);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function post(string $uri, array $query = []): ResourceObject
-    {
-        return $this->unsafeRequest('POST', $uri, $query);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function put(string $uri, array $query = []): ResourceObject
-    {
-        return $this->unsafeRequest('PUT', $uri, $query);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function patch(string $uri, array $query = []): ResourceObject
-    {
-        return $this->unsafeRequest('PATCH', $uri, $query);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public function delete(string $uri, array $query = []): ResourceObject
-    {
-        return $this->unsafeRequest('DELETE', $uri, $query);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @codeCoverageIgnore
-     */
-    public function head(string $uri, array $query = []): ResourceObject
-    {
-        throw new LogicException();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @codeCoverageIgnore
-     */
-    public function options(string $uri, array $query = []): ResourceObject
-    {
-        throw new LogicException();
-    }
-
-    /**
-     * @param array<string, mixed> $query
-     */
     private function safeRequest(string $path, array $query): ResourceObject
     {
         $uri = ($this->queryMerger)($path, $query);
         $queryParameter = $uri->query ? '?' . http_build_query($uri->query) : '';
         $url = sprintf('%s%s%s', $this->baseUri, $uri->path, $queryParameter);
-        $curl = sprintf("curl -s -i '%s'", $url);
+        $curl = sprintf('curl -s -i "%s"', $url);
 
         return $this->request($curl, 'get', $url);
     }
 
-    /**
-     * @param array<string, mixed> $query
-     */
     private function unsafeRequest(string $method, string $path, array $query): ResourceObject
     {
         $uri = ($this->queryMerger)($path, $query);
         $json = json_encode($uri->query, JSON_THROW_ON_ERROR);
         $url = sprintf('%s%s', $this->baseUri, $uri->path);
-
-        $curl = sprintf("curl -s -i -H 'Content-Type:application/json' -X %s -d '%s' %s", $method, $json, $url);
+        $curl = sprintf(
+            'curl -s -i -H "Content-Type:application/json" -X %s -d %s "%s"',
+            $method,
+            escapeshellarg($json),
+            $url
+        );
 
         return $this->request($curl, $method, $url);
     }
 
-    /**
-     * @param array<string> $output
-     */
-    public function log(array $output, string $curl): void
+    private function request(string $curl, string $method, string $url): ResourceObject
     {
-        $responseLog = implode(PHP_EOL, $output);
-        $log = sprintf("%s\n\n%s", $curl, $responseLog) . PHP_EOL . PHP_EOL;
-        file_put_contents($this->logFile, $log, FILE_APPEND);
+        // Try using proc_open first with Windows compatibility fixes
+        $output = $this->execWithProcOpen($curl);
+
+        // Fall back to exec if proc_open fails
+        if (empty($output)) {
+            $output = $this->execWithExec($curl);
+        }
+
+        if (empty($output)) {
+            throw new RuntimeException('Failed to execute curl command: ' . $curl);
+        }
+
+        $uri = new ResourceUri($url);
+        $uri->method = $method;
+        $ro = ($this->createResponse)($uri, $output);
+        $this->log($output, $curl);
+
+        return $ro;
     }
 
-    public function request(string $curl, string $method, string $url): ResourceObject
+    private function execWithProcOpen(string $curl): array
     {
         $descriptorspec = [
-            1 => ['pipe', 'w'], // stdout
-            2 => ['pipe', 'w'],  // stderr
+            ['pipe', 'r'],  // stdin
+            ['pipe', 'w'],  // stdout
+            ['pipe', 'w'],   // stderr
         ];
 
         $process = proc_open($curl, $descriptorspec, $pipes);
         if (! is_resource($process)) {
-            throw new RuntimeException('Failed to execute curl command');
+            return [];
         }
+
+        // Close stdin as we don't need it
+        fclose($pipes[0]);
 
         $output = [];
         while (! feof($pipes[1])) {
@@ -253,16 +164,78 @@ final class HttpResource implements ResourceInterface
         fclose($pipes[2]);
         proc_close($process);
 
-        if (empty($output)) {
-            // Windows対応のためexecを使用
-            exec($curl, $output);
-        }
-        var_dump($output);
-        $uri = new ResourceUri($url);
-        $uri->method = $method;
-        $ro = ($this->createResponse)($uri, $output);
-        $this->log($output, $curl);
+        return $output;
+    }
 
-        return $ro;
+    private function execWithExec(string $curl): array
+    {
+        $output = [];
+        exec($curl, $output);
+
+        return $output;
+    }
+
+    public function log(array $output, string $curl): void
+    {
+        $responseLog = implode(PHP_EOL, $output);
+        $log = sprintf('%s%s', $curl, $responseLog) . PHP_EOL . PHP_EOL;
+        file_put_contents($this->logFile, $log, FILE_APPEND);
+    }
+
+    // Interface implementation methods...
+    public function get(string $uri, array $query = []): ResourceObject
+    {
+        return $this->safeRequest($uri, $query);
+    }
+
+    public function post(string $uri, array $query = []): ResourceObject
+    {
+        return $this->unsafeRequest('POST', $uri, $query);
+    }
+
+    public function put(string $uri, array $query = []): ResourceObject
+    {
+        return $this->unsafeRequest('PUT', $uri, $query);
+    }
+
+    public function patch(string $uri, array $query = []): ResourceObject
+    {
+        return $this->unsafeRequest('PATCH', $uri, $query);
+    }
+
+    public function delete(string $uri, array $query = []): ResourceObject
+    {
+        return $this->unsafeRequest('DELETE', $uri, $query);
+    }
+
+    // Other interface methods with LogicException...
+    public function newInstance($uri): ResourceObject
+    {
+        throw new LogicException();
+    }
+
+    public function object(ResourceObject $ro): RequestInterface
+    {
+        throw new LogicException();
+    }
+
+    public function uri($uri): RequestInterface
+    {
+        throw new LogicException();
+    }
+
+    public function href(string $rel, array $query = []): ResourceObject
+    {
+        throw new LogicException();
+    }
+
+    public function head(string $uri, array $query = []): ResourceObject
+    {
+        throw new LogicException();
+    }
+
+    public function options(string $uri, array $query = []): ResourceObject
+    {
+        throw new LogicException();
     }
 }
