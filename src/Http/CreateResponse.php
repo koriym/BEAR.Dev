@@ -16,6 +16,7 @@ use function assert;
 use function implode;
 use function json_decode;
 use function preg_match;
+use function var_dump;
 
 use const PHP_EOL;
 
@@ -26,6 +27,16 @@ final class CreateResponse
 {
     public function __invoke(Uri $uri, array $output): ResourceObject
     {
+        if (empty($output)) {
+            $ro = new NullResourceObject();
+            $ro->uri = $uri;
+            $ro->code = 500;
+            $ro->body = ['error' => 'Empty response'];
+            $ro->view = '{}';
+
+            return $ro;
+        }
+
         var_dump([
             'uri' => $uri,
             'output' => $output
@@ -76,14 +87,18 @@ final class CreateResponse
 
     private function getCode(string $status): int
     {
-        error_log("Status line: " . $status); // デバッグ用
-
-        if (!preg_match('/HTTP\/[\d.]+\s+(\d{3})/', $status, $match)) {
-            error_log("No status code found in: " . $status);
+        // 空の出力の場合は500を返す
+        if (empty($status)) {
             return 500;
         }
 
-        return (int) $match[0];
+        // HTTP/1.0やHTTP/1.1のステータスコードを抽出
+        if (preg_match('/HTTP\/\d\.\d\s+(\d{3})/', $status, $match)) {
+            return (int) $match[1];
+        }
+
+        // ステータスコードが見つからない場合は500を返す
+        return 500;
     }
 
     /**
