@@ -7,6 +7,7 @@ namespace BEAR\Dev\Http;
 use BEAR\Resource\NullResourceObject;
 use BEAR\Resource\ResourceObject;
 use BEAR\Resource\Uri;
+use Throwable;
 
 use function array_key_exists;
 use function array_pop;
@@ -23,10 +24,24 @@ use const PHP_EOL;
  */
 final class CreateResponse
 {
+    public function __invoke(Uri $uri, array $output): ResourceObject
+    {
+        try {
+            $ro = $this->invoke($uri, $output);
+        } catch (Throwable $e) {
+            $ro = new NullResourceObject();
+            $ro->uri = $uri;
+            $ro->code = 500;
+            $ro->body = ['error' => $e->getMessage()];
+        }
+
+        return $ro;
+    }
+
     /**
      * @param array<string> $output
      */
-    public function __invoke(Uri $uri, array $output): ResourceObject
+    public function invoke(Uri $uri, array $output): ResourceObject
     {
         $headers = $body = [];
         $status = (string) array_shift($output);
@@ -57,8 +72,9 @@ final class CreateResponse
 
     private function getCode(string $status): int
     {
-        preg_match('/\d{3}/', $status, $match);
-        assert(array_key_exists(0, $match));
+        if (! preg_match('/\d{3}/', $status, $match)) {
+            return 500;
+        }
 
         return (int) $match[0];
     }
