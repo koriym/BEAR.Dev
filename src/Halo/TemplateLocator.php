@@ -20,15 +20,13 @@ use function substr;
 
 final class TemplateLocator
 {
-//    private array $twigPaths;
-
     /**
      * @param array<string> $twigPaths
      * @param array<string> $qiqPaths
      */
     public function __construct(
         private AbstractAppMeta $meta,
-        #[TwigPaths('twigPaths')] private array $twigPaths = [],
+        #[TwigPaths] private array $twigPaths = [],
         #[Named('qiq_paths')] private array $qiqPaths = [],
         #[Named('qiq_extension')] private string $qiqExt = '',
     ) {
@@ -67,12 +65,12 @@ final class TemplateLocator
     private function getClass(ResourceObject $ro): string
     {
         if ($ro instanceof WeavedInterface) {
-            /** @var \ReflectionClass<ResourceObject> $parentClass */
             $parentClass = (new ReflectionClass($ro))->getParentClass();
 
-            return $parentClass->name;
+            // Convert for Windows support
+            return str_replace('\\', '/', $parentClass->name);
         }
 
-        return get_class($ro);
+        return str_replace('\\', '/', get_class($ro));
     }
 }

@@ -8,12 +8,9 @@ use BEAR\Resource\NullResourceObject;
 use BEAR\Resource\ResourceObject;
 use BEAR\Resource\Uri;
 
-use function array_key_exists;
-use function array_pop;
+use function array_filter;
 use function array_shift;
-use function assert;
 use function implode;
-use function is_string;
 use function json_decode;
 use function preg_match;
 
@@ -24,30 +21,45 @@ use const PHP_EOL;
  */
 final class CreateResponse
 {
-    /**
-     * @param array<string> $output
-     */
     public function __invoke(Uri $uri, array $output): ResourceObject
     {
-        $headers = $body = [];
-        $status = (string) array_shift($output);
-        do {
-            $line = array_shift($output);
-            assert(is_string($line));
-            $headers[] = $line;
-        } while ($line !== '');
+        if (empty($output)) {
+            $ro = new NullResourceObject();
+            $ro->uri = $uri;
+            $ro->code = 500;
+            $ro->body = ['error' => 'Empty response'];
+            $ro->view = '{}';
 
-        do {
-            $line = array_shift($output);
-            $body[] = (string) $line;
-        } while ($line !== null);
+            return $ro;
+        }
+
+        $headers = [];
+        $body = [];
+        $status = (string) array_shift($output);
+
+        // ヘッダー部分の処理
+        $headerComplete = false;
+        foreach ($output as $line) {
+            if (! $headerComplete) {
+                if ($line === '') {
+                    $headerComplete = true;
+                    continue;
+                }
+
+                $headers[] = $line;
+            } else {
+                $body[] = $line;
+            }
+        }
 
         $ro = new NullResourceObject();
         $ro->uri = $uri;
         $ro->code = $this->getCode($status);
         $ro->headers = $this->getHeaders($headers);
+
+        // レスポンスボディの処理
         $view = $this->getJsonView($body);
-        $ro->body = (array) json_decode($view);
+        $ro->body = (array) json_decode($view, true) ?: [];
         $ro->view = $view;
 
         return $ro;
@@ -55,10 +67,15 @@ final class CreateResponse
 
     private function getCode(string $status): int
     {
-        preg_match('/\d{3}/', $status, $match);
-        assert(array_key_exists(0, $match));
+        if (empty($status)) {
+            return 500;
+        }
 
-        return (int) $match[0];
+        if (preg_match('/^HTTP\/\d\.\d\s+(\d{3})/', $status, $match)) {
+            return (int) $match[1];
+        }
+
+        return 500;
     }
 
     /**
@@ -69,12 +86,12 @@ final class CreateResponse
     private function getHeaders(array $headers): array
     {
         $keyedHeader = [];
-        array_pop($headers);
         foreach ($headers as $header) {
-            preg_match('/(.+):\s(.+)/', $header, $matched);
-            assert(array_key_exists(1, $matched));
-            assert(array_key_exists(2, $matched));
-            $keyedHeader[$matched[1]] = $matched[2];
+            if (! preg_match('/^([^:]+):\s*(.*)$/', $header, $matches)) {
+                continue;
+            }
+
+            $keyedHeader[$matches[1]] = $matches[2];
         }
 
         return $keyedHeader;
@@ -85,7 +102,7 @@ final class CreateResponse
      */
     private function getJsonView(array $body): string
     {
-        array_pop($body);
+        $body = array_filter($body, 'strlen');
 
         return implode(PHP_EOL, $body);
     }
