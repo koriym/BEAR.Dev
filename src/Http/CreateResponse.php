@@ -7,16 +7,12 @@ namespace BEAR\Dev\Http;
 use BEAR\Resource\NullResourceObject;
 use BEAR\Resource\ResourceObject;
 use BEAR\Resource\Uri;
-use Throwable;
 
-use function array_key_exists;
-use function array_pop;
+use function array_filter;
 use function array_shift;
-use function assert;
 use function implode;
 use function json_decode;
 use function preg_match;
-use function var_dump;
 
 use const PHP_EOL;
 
@@ -37,49 +33,33 @@ final class CreateResponse
             return $ro;
         }
 
-        var_dump([
-            'uri' => $uri,
-            'output' => $output
-        ]);
-        try {
-            $ro = $this->invoke($uri, $output);
-        } catch (Throwable $e) {
-            $ro = new NullResourceObject();
-            $ro->uri = $uri;
-            $ro->code = 500;
-            $ro->body = ['error' => $e->getMessage()];
-        }
-
-        return $ro;
-    }
-
-    /**
-     * @param array<string> $output
-     */
-    public function invoke(Uri $uri, array $output): ResourceObject
-    {
-        $headers = $body = [];
+        $headers = [];
+        $body = [];
         $status = (string) array_shift($output);
-        do {
-            $line = array_shift($output);
-            if ($line === null) {
-                break;
+
+        // ヘッダー部分の処理
+        $headerComplete = false;
+        foreach ($output as $line) {
+            if (! $headerComplete) {
+                if ($line === '') {
+                    $headerComplete = true;
+                    continue;
+                }
+
+                $headers[] = $line;
+            } else {
+                $body[] = $line;
             }
-
-            $headers[] = $line;
-        } while ($line !== '');
-
-        do {
-            $line = array_shift($output);
-            $body[] = (string) $line;
-        } while ($line !== null);
+        }
 
         $ro = new NullResourceObject();
         $ro->uri = $uri;
         $ro->code = $this->getCode($status);
         $ro->headers = $this->getHeaders($headers);
+
+        // レスポンスボディの処理
         $view = $this->getJsonView($body);
-        $ro->body = (array) json_decode($view);
+        $ro->body = (array) json_decode($view, true) ?: [];
         $ro->view = $view;
 
         return $ro;
@@ -87,17 +67,14 @@ final class CreateResponse
 
     private function getCode(string $status): int
     {
-        // 空の出力の場合は500を返す
         if (empty($status)) {
             return 500;
         }
 
-        // HTTP/1.0やHTTP/1.1のステータスコードを抽出
         if (preg_match('/HTTP\/\d\.\d\s+(\d{3})/', $status, $match)) {
             return (int) $match[1];
         }
 
-        // ステータスコードが見つからない場合は500を返す
         return 500;
     }
 
@@ -109,12 +86,12 @@ final class CreateResponse
     private function getHeaders(array $headers): array
     {
         $keyedHeader = [];
-        array_pop($headers);
         foreach ($headers as $header) {
-            preg_match('/(.+):\s(.+)/', $header, $matched);
-            assert(array_key_exists(1, $matched));
-            assert(array_key_exists(2, $matched));
-            $keyedHeader[$matched[1]] = $matched[2];
+            if (! preg_match('/^([^:]+):\s*(.*)$/', $header, $matches)) {
+                continue;
+            }
+
+            $keyedHeader[$matches[1]] = $matches[2];
         }
 
         return $keyedHeader;
@@ -125,7 +102,7 @@ final class CreateResponse
      */
     private function getJsonView(array $body): string
     {
-        array_pop($body);
+        $body = array_filter($body, 'strlen');
 
         return implode(PHP_EOL, $body);
     }
