@@ -27,7 +27,7 @@ final class Injector
     {
 
         $meta = new Meta(__NAMESPACE__, $context, dirname(__DIR__));
-        $cacheNamespace = str_replace('/', '_', dirname(__DIR__)) . $context;
+        $cacheNamespace = str_replace(['/', '\\', ':'], '_', dirname(__DIR__)) . $context;
         var_dump($cacheNamespace);
 
         return PackageInjector::getInstance(__NAMESPACE__, $context, dirname(__DIR__));
