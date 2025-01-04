@@ -26,6 +26,10 @@ final class CreateResponse
 {
     public function __invoke(Uri $uri, array $output): ResourceObject
     {
+        var_dump([
+            'uri' => $uri,
+            'output' => $output
+        ]);
         try {
             $ro = $this->invoke($uri, $output);
         } catch (Throwable $e) {
@@ -72,7 +76,10 @@ final class CreateResponse
 
     private function getCode(string $status): int
     {
-        if (! preg_match('/\d{3}/', $status, $match)) {
+        error_log("Status line: " . $status); // デバッグ用
+
+        if (!preg_match('/HTTP\/[\d.]+\s+(\d{3})/', $status, $match)) {
+            error_log("No status code found in: " . $status);
             return 500;
         }
 
