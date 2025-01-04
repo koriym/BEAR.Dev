@@ -11,15 +11,23 @@ use BEAR\Resource\ResourceObject;
 use BEAR\Resource\Uri as ResourceUri;
 use Koriym\PhpServer\PhpServer;
 use LogicException;
+use RuntimeException;
 
 use function exec;
+use function fclose;
+use function feof;
+use function fgets;
 use function file_exists;
 use function file_put_contents;
 use function http_build_query;
 use function implode;
 use function in_array;
+use function is_resource;
 use function json_encode;
+use function proc_close;
+use function proc_open;
 use function sprintf;
+use function trim;
 
 use const FILE_APPEND;
 use const JSON_THROW_ON_ERROR;
@@ -220,7 +228,35 @@ final class HttpResource implements ResourceInterface
 
     public function request(string $curl, string $method, string $url): ResourceObject
     {
-        exec($curl, $output);
+        $descriptorspec = [
+            1 => ['pipe', 'w'], // stdout
+            2 => ['pipe', 'w'],  // stderr
+        ];
+
+        $process = proc_open($curl, $descriptorspec, $pipes);
+        if (! is_resource($process)) {
+            throw new RuntimeException('Failed to execute curl command');
+        }
+
+        $output = [];
+        while (! feof($pipes[1])) {
+            $line = fgets($pipes[1]);
+            if ($line === false) {
+                continue;
+            }
+
+            $output[] = trim($line);
+        }
+
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+        proc_close($process);
+
+        if (empty($output)) {
+            // Windows対応のためexecを使用
+            exec($curl, $output);
+        }
+
         $uri = new ResourceUri($url);
         $uri->method = $method;
         $ro = ($this->createResponse)($uri, $output);
