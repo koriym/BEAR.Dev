@@ -78,7 +78,8 @@ final class DevInvoker implements InvokerInterface
         if (extension_loaded('xhprof')) {
             $xhprof = xhprof_disable();
             $profileId = (new XHProfRuns_Default(sys_get_temp_dir()))->save_run($xhprof, 'resource');
-            $resource->headers[self::HEADER_PROFILE_ID] = $profileId;
+            /** @var array<string, string> $profileId */
+            $resource->headers[self::HEADER_PROFILE_ID] = $profileId; // @phpstan-ignore-line
         }
 
         return $result;
@@ -93,6 +94,7 @@ final class DevInvoker implements InvokerInterface
         assert(property_exists($request->resourceObject, 'bindings'));
         /** @psalm-suppress UndefinedPropertyFetch */
         $bind = $request->resourceObject->bindings;
+        /** @var array<string, array<MethodInterceptor>> $bind */
         $interceptors = $this->getBindInfo($bind);
         $request->resourceObject->headers[self::HEADER_INTERCEPTORS] = (string) json_encode($interceptors);
 

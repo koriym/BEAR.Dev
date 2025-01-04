@@ -13,7 +13,6 @@ use function array_pop;
 use function array_shift;
 use function assert;
 use function implode;
-use function is_string;
 use function json_decode;
 use function preg_match;
 
@@ -33,7 +32,10 @@ final class CreateResponse
         $status = (string) array_shift($output);
         do {
             $line = array_shift($output);
-            assert(is_string($line));
+            if ($line === null) {
+                break;
+            }
+
             $headers[] = $line;
         } while ($line !== '');
 
